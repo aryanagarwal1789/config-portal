@@ -16,12 +16,12 @@
 /* ── Topbar ── */
 .app-topbar {
     height: 64px;
-    background: linear-gradient(120deg, #060d1f 0%, #0a1a3a 35%, #0d2260 65%, #102a72 100%);
-    border-bottom: 1.5px solid rgba(30, 80, 180, 0.5);
+    background: linear-gradient(120deg, #084157 0%, #0a5068 35%, #1a7895 65%, #00c6b1 100%);
+    border-bottom: 1.5px solid rgba(0, 198, 177, 0.45);
     position: sticky;
     top: 0;
     z-index: 200;
-    box-shadow: 0 2px 16px rgba(15, 36, 100, 0.22), 0 1px 4px rgba(37, 99, 235, 0.15);
+    box-shadow: 0 2px 16px rgba(8, 65, 87, 0.22), 0 1px 4px rgba(0, 198, 177, 0.18);
     transition: background var(--transition), border-color var(--transition);
 }
 
@@ -41,7 +41,7 @@
 }
 
 .app-topbar-logo {
-    color: #93c5fd;
+    color: #d7fffb;
     display: flex;
     align-items: center;
 }
@@ -69,7 +69,7 @@
     background: rgba(255, 255, 255, 0.15);
     border: 1px solid rgba(255, 255, 255, 0.28);
     border-radius: 20px;
-    color: #e0eaff;
+    color: #eafffa;
     font-size: 13px;
     font-weight: 600;
     font-family: inherit;

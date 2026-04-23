@@ -13,10 +13,10 @@
 /* ── Sidebar ── */
 .admin-sidebar {
     background:
-        linear-gradient(180deg, #ffffff 0%, #eef1f9 100%),
-        radial-gradient(ellipse 80% 30% at 0% 0%, rgba(99, 102, 241, 0.08), transparent 70%);
+        linear-gradient(180deg, #ffffff 0%, #effffd 100%),
+        radial-gradient(ellipse 80% 30% at 0% 0%, rgba(0, 198, 177, 0.10), transparent 70%);
     background-blend-mode: normal, screen;
-    border-right: 1px solid rgba(99, 102, 241, 0.12);
+    border-right: 1px solid rgba(0, 198, 177, 0.14);
     display: flex;
     flex-direction: column;
     position: sticky;
@@ -26,15 +26,15 @@
     overflow-y: auto;
     transition: background var(--transition), border-color var(--transition);
     box-shadow:
-        1px 0 3px rgba(15, 36, 100, 0.03),
-        4px 0 24px rgba(99, 102, 241, 0.05);
+        1px 0 3px rgba(8, 65, 87, 0.04),
+        4px 0 24px rgba(0, 198, 177, 0.06);
 }
 
 [data-theme='dark'] .admin-sidebar {
     background:
-        linear-gradient(180deg, #141828 0%, #1a1f33 100%),
-        radial-gradient(ellipse 80% 30% at 0% 0%, rgba(129, 140, 248, 0.10), transparent 70%);
-    border-right: 1px solid rgba(129, 140, 248, 0.14);
+        linear-gradient(180deg, #0b2e3d 0%, #0f3a4d 100%),
+        radial-gradient(ellipse 80% 30% at 0% 0%, rgba(45, 224, 204, 0.10), transparent 70%);
+    border-right: 1px solid rgba(45, 224, 204, 0.14);
     box-shadow:
         1px 0 3px rgba(0, 0, 0, 0.3),
         4px 0 24px rgba(0, 0, 0, 0.25);
@@ -46,18 +46,18 @@
     justify-content: space-between;
     gap: 10px;
     padding: 20px 18px 14px;
-    border-bottom: 1px solid rgba(99, 102, 241, 0.12);
+    border-bottom: 1px solid rgba(0, 198, 177, 0.14);
 }
 
 [data-theme='dark'] .admin-sidebar-header {
-    border-bottom-color: rgba(129, 140, 248, 0.16);
+    border-bottom-color: rgba(45, 224, 204, 0.16);
 }
 
 .admin-sidebar-title {
     font-size: 15px;
     font-weight: 800;
     letter-spacing: -0.02em;
-    background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent) 60%, #8b5cf6 100%);
+    background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent) 60%, var(--accent-secondary) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -66,7 +66,7 @@
 
 .admin-sidebar-toggle {
     background: var(--bg-surface);
-    border: 1px solid rgba(99, 102, 241, 0.18);
+    border: 1px solid rgba(0, 198, 177, 0.22);
     border-radius: 8px;
     width: 32px;
     height: 32px;
@@ -76,7 +76,7 @@
     color: var(--text-accent);
     cursor: pointer;
     transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s, box-shadow 0.2s;
-    box-shadow: 0 1px 2px rgba(99, 102, 241, 0.08);
+    box-shadow: 0 1px 2px rgba(0, 198, 177, 0.10);
 }
 
 .admin-sidebar-toggle:hover {
@@ -84,7 +84,7 @@
     color: var(--text-accent);
     border-color: var(--accent-border);
     transform: translateY(-1px);
-    box-shadow: 0 3px 10px rgba(99, 102, 241, 0.18);
+    box-shadow: 0 3px 10px rgba(0, 198, 177, 0.20);
 }
 
 .admin-sidebar-nav {
@@ -125,22 +125,22 @@
 }
 
 .admin-nav-item:hover {
-    background: rgba(99, 102, 241, 0.08);
+    background: rgba(0, 198, 177, 0.10);
     color: var(--text-accent);
     transform: translateX(2px);
 }
 
 [data-theme='dark'] .admin-nav-item:hover {
-    background: rgba(129, 140, 248, 0.12);
+    background: rgba(45, 224, 204, 0.12);
 }
 
 .admin-nav-item.active {
-    background: linear-gradient(135deg, var(--accent) 0%, #8b5cf6 100%);
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-secondary) 100%);
     color: #ffffff;
     font-weight: 600;
     box-shadow:
-        0 2px 6px rgba(99, 102, 241, 0.25),
-        0 6px 18px rgba(139, 92, 246, 0.25);
+        0 2px 6px rgba(0, 198, 177, 0.30),
+        0 6px 18px rgba(34, 124, 157, 0.28);
     transform: translateX(0);
 }
 
@@ -148,8 +148,8 @@
     transform: translateY(-1px);
     filter: brightness(1.06);
     box-shadow:
-        0 3px 8px rgba(99, 102, 241, 0.28),
-        0 8px 24px rgba(139, 92, 246, 0.30);
+        0 3px 8px rgba(0, 198, 177, 0.32),
+        0 8px 24px rgba(34, 124, 157, 0.34);
 }
 
 .admin-nav-item.active .admin-nav-icon {
@@ -199,11 +199,11 @@
     gap: 2px;
     padding: 4px 0 6px 24px;
     margin-left: 14px;
-    border-left: 1.5px dashed rgba(99, 102, 241, 0.20);
+    border-left: 1.5px dashed rgba(0, 198, 177, 0.22);
 }
 
 [data-theme='dark'] .admin-nav-children {
-    border-left-color: rgba(129, 140, 248, 0.24);
+    border-left-color: rgba(45, 224, 204, 0.24);
 }
 
 .admin-nav-child {
@@ -216,29 +216,29 @@
 }
 
 .admin-nav-child:hover {
-    background: rgba(99, 102, 241, 0.07);
+    background: rgba(0, 198, 177, 0.08);
     color: var(--text-accent);
     transform: translateX(2px);
 }
 
 [data-theme='dark'] .admin-nav-child:hover {
-    background: rgba(129, 140, 248, 0.11);
+    background: rgba(45, 224, 204, 0.11);
 }
 
 .admin-nav-child.active {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.12) 100%);
+    background: linear-gradient(135deg, rgba(0, 198, 177, 0.16) 0%, rgba(34, 124, 157, 0.14) 100%);
     color: var(--text-accent);
     font-weight: 600;
     box-shadow: inset 2px 0 0 var(--accent);
 }
 
 [data-theme='dark'] .admin-nav-child.active {
-    background: linear-gradient(135deg, rgba(129, 140, 248, 0.18) 0%, rgba(167, 139, 250, 0.15) 100%);
+    background: linear-gradient(135deg, rgba(45, 224, 204, 0.18) 0%, rgba(76, 178, 207, 0.15) 100%);
 }
 
 .admin-sidebar-footer {
     padding: 14px 18px;
-    border-top: 1px solid rgba(99, 102, 241, 0.12);
+    border-top: 1px solid rgba(0, 198, 177, 0.14);
     display: flex;
     flex-direction: column;
     gap: 4px;
@@ -247,7 +247,7 @@
 }
 
 [data-theme='dark'] .admin-sidebar-footer {
-    border-top-color: rgba(129, 140, 248, 0.16);
+    border-top-color: rgba(45, 224, 204, 0.16);
 }
 
 .admin-sidebar-footer a {

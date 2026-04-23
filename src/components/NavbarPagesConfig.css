@@ -398,9 +398,9 @@
 }
 
 .subsection-block.type-content {
-    --sub-accent: #6366f1;
-    --sub-accent-soft: rgba(99, 102, 241, 0.10);
-    --sub-accent-border: rgba(99, 102, 241, 0.35);
+    --sub-accent: #00c6b1;
+    --sub-accent-soft: rgba(0, 198, 177, 0.10);
+    --sub-accent-border: rgba(0, 198, 177, 0.35);
 }
 .subsection-block.type-image {
     --sub-accent: #0ea5e9;
@@ -424,9 +424,9 @@
 }
 
 [data-theme="dark"] .subsection-block.type-content {
-    --sub-accent: #818cf8;
-    --sub-accent-soft: rgba(129, 140, 248, 0.14);
-    --sub-accent-border: rgba(129, 140, 248, 0.28);
+    --sub-accent: #2de0cc;
+    --sub-accent-soft: rgba(45, 224, 204, 0.14);
+    --sub-accent-border: rgba(45, 224, 204, 0.28);
 }
 [data-theme="dark"] .subsection-block.type-image {
     --sub-accent: #38bdf8;

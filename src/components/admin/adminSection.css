@@ -1,19 +1,19 @@
 /* ── Collapsible section card ── */
 .admin-section {
     /* Each accent variant provides these CSS custom properties: */
-    --sec-grad-1: rgba(99, 102, 241, 0.05);
-    --sec-grad-2: rgba(139, 92, 246, 0.06);
-    --sec-grad-3: rgba(14, 165, 233, 0.05);
-    --sec-border: rgba(99, 102, 241, 0.25);
-    --sec-header-tint: rgba(99, 102, 241, 0.08);
-    --sec-header-tint-hover: rgba(99, 102, 241, 0.14);
-    --sec-body-1: rgba(99, 102, 241, 0.04);
-    --sec-body-2: rgba(139, 92, 246, 0.06);
-    --sec-bar-1: #6366f1;
-    --sec-bar-2: #8b5cf6;
-    --sec-shadow: rgba(99, 102, 241, 0.08);
-    --sec-shadow-strong: rgba(99, 102, 241, 0.14);
-    --sec-hover-glow: rgba(99, 102, 241, 0.12);
+    --sec-grad-1: rgba(0, 198, 177, 0.06);
+    --sec-grad-2: rgba(34, 124, 157, 0.06);
+    --sec-grad-3: rgba(52, 147, 182, 0.05);
+    --sec-border: rgba(0, 198, 177, 0.28);
+    --sec-header-tint: rgba(0, 198, 177, 0.10);
+    --sec-header-tint-hover: rgba(0, 198, 177, 0.16);
+    --sec-body-1: rgba(0, 198, 177, 0.05);
+    --sec-body-2: rgba(34, 124, 157, 0.06);
+    --sec-bar-1: #00c6b1;
+    --sec-bar-2: #227c9d;
+    --sec-shadow: rgba(0, 198, 177, 0.10);
+    --sec-shadow-strong: rgba(0, 198, 177, 0.18);
+    --sec-hover-glow: rgba(0, 198, 177, 0.14);
 
     background: linear-gradient(
         135deg,
@@ -37,35 +37,35 @@
 
 /* ── Accent variants ── */
 .admin-section.accent-indigo {
-    --sec-grad-1: rgba(99, 102, 241, 0.06);
-    --sec-grad-2: rgba(139, 92, 246, 0.08);
-    --sec-grad-3: rgba(14, 165, 233, 0.06);
-    --sec-border: rgba(99, 102, 241, 0.28);
-    --sec-header-tint: rgba(99, 102, 241, 0.10);
-    --sec-header-tint-hover: rgba(99, 102, 241, 0.16);
-    --sec-body-1: rgba(99, 102, 241, 0.05);
-    --sec-body-2: rgba(139, 92, 246, 0.07);
-    --sec-bar-1: #6366f1;
-    --sec-bar-2: #8b5cf6;
-    --sec-shadow: rgba(99, 102, 241, 0.10);
-    --sec-shadow-strong: rgba(99, 102, 241, 0.18);
-    --sec-hover-glow: rgba(99, 102, 241, 0.14);
+    --sec-grad-1: rgba(0, 198, 177, 0.07);
+    --sec-grad-2: rgba(34, 124, 157, 0.08);
+    --sec-grad-3: rgba(52, 147, 182, 0.06);
+    --sec-border: rgba(0, 198, 177, 0.30);
+    --sec-header-tint: rgba(0, 198, 177, 0.11);
+    --sec-header-tint-hover: rgba(0, 198, 177, 0.18);
+    --sec-body-1: rgba(0, 198, 177, 0.05);
+    --sec-body-2: rgba(34, 124, 157, 0.07);
+    --sec-bar-1: #00c6b1;
+    --sec-bar-2: #227c9d;
+    --sec-shadow: rgba(0, 198, 177, 0.12);
+    --sec-shadow-strong: rgba(0, 198, 177, 0.20);
+    --sec-hover-glow: rgba(0, 198, 177, 0.16);
 }
 
 .admin-section.accent-purple {
-    --sec-grad-1: rgba(168, 85, 247, 0.07);
-    --sec-grad-2: rgba(139, 92, 246, 0.09);
-    --sec-grad-3: rgba(217, 70, 239, 0.06);
-    --sec-border: rgba(168, 85, 247, 0.30);
-    --sec-header-tint: rgba(168, 85, 247, 0.11);
-    --sec-header-tint-hover: rgba(168, 85, 247, 0.18);
-    --sec-body-1: rgba(168, 85, 247, 0.06);
-    --sec-body-2: rgba(217, 70, 239, 0.08);
-    --sec-bar-1: #a855f7;
-    --sec-bar-2: #d946ef;
-    --sec-shadow: rgba(168, 85, 247, 0.10);
-    --sec-shadow-strong: rgba(168, 85, 247, 0.18);
-    --sec-hover-glow: rgba(168, 85, 247, 0.14);
+    --sec-grad-1: rgba(34, 124, 157, 0.08);
+    --sec-grad-2: rgba(52, 147, 182, 0.09);
+    --sec-grad-3: rgba(8, 65, 87, 0.06);
+    --sec-border: rgba(34, 124, 157, 0.32);
+    --sec-header-tint: rgba(34, 124, 157, 0.12);
+    --sec-header-tint-hover: rgba(34, 124, 157, 0.20);
+    --sec-body-1: rgba(34, 124, 157, 0.07);
+    --sec-body-2: rgba(52, 147, 182, 0.08);
+    --sec-bar-1: #227c9d;
+    --sec-bar-2: #084157;
+    --sec-shadow: rgba(34, 124, 157, 0.12);
+    --sec-shadow-strong: rgba(34, 124, 157, 0.20);
+    --sec-hover-glow: rgba(34, 124, 157, 0.16);
 }
 
 .admin-section.accent-pink {
@@ -253,7 +253,7 @@
     -moz-appearance: none;
     padding: 7px 30px 7px 14px;
     background-color: var(--bg-surface);
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 14 14' fill='none'><path d='M3 5l4 4 4-4' stroke='%236366f1' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 14 14' fill='none'><path d='M3 5l4 4 4-4' stroke='%2300c6b1' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/></svg>");
     background-repeat: no-repeat;
     background-position: right 10px center;
     background-size: 12px 12px;
@@ -277,7 +277,7 @@
 
 .admin-section-select:focus {
     border-color: var(--border-focus);
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.14);
+    box-shadow: 0 0 0 3px rgba(0, 198, 177, 0.18);
 }
 
 /* Gradient pill badge — matches accent */
@@ -323,8 +323,8 @@
     background: var(--bg-surface);
     border: 1px solid var(--border);
     box-shadow:
-        0 1px 2px rgba(15, 23, 42, 0.04),
-        0 2px 8px rgba(99, 102, 241, 0.04);
+        0 1px 2px rgba(8, 65, 87, 0.04),
+        0 2px 8px rgba(0, 198, 177, 0.05);
     transition:
         transform 0.15s ease,
         box-shadow 0.2s ease,
@@ -379,9 +379,9 @@
 [data-theme='dark'] .admin-section {
     background: linear-gradient(
         135deg,
-        rgba(129, 140, 248, 0.08) 0%,
-        rgba(167, 139, 250, 0.08) 55%,
-        rgba(56, 189, 248, 0.06) 100%
+        rgba(45, 224, 204, 0.08) 0%,
+        rgba(76, 178, 207, 0.08) 55%,
+        rgba(34, 124, 157, 0.06) 100%
     );
     box-shadow:
         0 1px 3px rgba(0, 0, 0, 0.35),
@@ -391,7 +391,7 @@
 [data-theme='dark'] .admin-section::before {
     background: radial-gradient(
         ellipse 60% 40% at 0% 0%,
-        rgba(129, 140, 248, 0.14),
+        rgba(45, 224, 204, 0.14),
         transparent 70%
     );
 }
@@ -399,7 +399,7 @@
 [data-theme='dark'] .admin-section-header {
     background: linear-gradient(
         90deg,
-        rgba(129, 140, 248, 0.14) 0%,
+        rgba(45, 224, 204, 0.14) 0%,
         var(--bg-surface) 70%
     );
 }
@@ -407,8 +407,8 @@
 [data-theme='dark'] .admin-section-header.is-clickable:hover {
     background: linear-gradient(
         90deg,
-        rgba(129, 140, 248, 0.22) 0%,
-        rgba(167, 139, 250, 0.10) 70%,
+        rgba(45, 224, 204, 0.22) 0%,
+        rgba(76, 178, 207, 0.10) 70%,
         var(--bg-surface) 100%
     );
 }
@@ -416,19 +416,19 @@
 [data-theme='dark'] .admin-section-body {
     background: linear-gradient(
         180deg,
-        rgba(129, 140, 248, 0.06) 0%,
-        rgba(167, 139, 250, 0.10) 100%
+        rgba(45, 224, 204, 0.06) 0%,
+        rgba(76, 178, 207, 0.10) 100%
     );
 }
 
 [data-theme='dark'] .admin-section-body .admin-item-card:hover {
     box-shadow:
         0 2px 4px rgba(0, 0, 0, 0.3),
-        0 8px 24px rgba(129, 140, 248, 0.25);
+        0 8px 24px rgba(45, 224, 204, 0.25);
 }
 
 [data-theme='dark'] .admin-section-body .admin-item-card.is-expanded {
     box-shadow:
         0 2px 4px rgba(0, 0, 0, 0.3),
-        0 10px 32px rgba(129, 140, 248, 0.28);
+        0 10px 32px rgba(45, 224, 204, 0.28);
 }
