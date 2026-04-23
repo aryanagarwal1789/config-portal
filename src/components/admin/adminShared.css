@@ -1,0 +1,792 @@
+/* ── Admin page header ── */
+.admin-page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 20px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+    position: relative;
+}
+
+.admin-page-header::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -1px;
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent) 0%, #8b5cf6 100%);
+    border-radius: 2px;
+}
+
+.admin-page-title {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    margin: 0 0 6px;
+    background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-accent) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.admin-page-subtitle {
+    font-size: 13.5px;
+    color: var(--text-secondary);
+    margin: 0;
+    max-width: 640px;
+    line-height: 1.55;
+}
+
+.admin-page-header-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* ── Empty state ── */
+.admin-empty {
+    background: var(--bg-surface);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-lg);
+    padding: 40px 24px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+/* ── Item card (used for content blocks, blog cards, etc) ── */
+.admin-item-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: background var(--transition), border-color var(--transition), box-shadow var(--transition);
+}
+
+.admin-item-card.is-dragging {
+    box-shadow: var(--shadow-lg);
+    border-color: var(--border-hover);
+}
+
+.admin-item-card.is-disabled {
+    opacity: 0.55;
+}
+
+/* Item cards nested *inside* a section should read as children of that
+   section, not as peer boxes. Use an elevated bg tint + no shadow so the
+   outer section card visually contains them. */
+.form-section .admin-item-card {
+    background: var(--bg-elevated);
+    box-shadow: none;
+}
+
+.form-section .admin-item-card.is-dragging {
+    box-shadow: var(--shadow-md);
+}
+
+/* When there are multiple sections (stacked siblings), give them clear
+   breathing room. */
+.form-section:not(:last-child) {
+    margin-bottom: 20px;
+}
+
+/* ── Compact collapsible item (image / video rows) ── */
+.admin-item-card.is-compact {
+    padding: 12px 16px;
+    gap: 0;
+    border-radius: var(--radius-md);
+}
+
+.admin-item-card.is-compact .admin-item-card-head {
+    gap: 14px;
+}
+
+.admin-item-card.is-compact.is-expanded {
+    padding-bottom: 18px;
+}
+
+.admin-item-thumb-sm {
+    width: 46px;
+    height: 46px;
+    object-fit: cover;
+    border-radius: 10px;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-accent-soft) 100%);
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 2px rgba(99, 102, 241, 0.08);
+}
+
+.admin-item-thumb-sm.is-video {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-color: var(--accent-border);
+}
+
+/* Accent gradient pill button used for Edit/Close on compact rows */
+.admin-item-edit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 14px;
+    background: var(--bg-surface);
+    border: 1.5px solid var(--border);
+    border-radius: 999px;
+    color: var(--text-secondary);
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition:
+        background 0.18s ease,
+        border-color 0.18s ease,
+        color 0.18s ease,
+        box-shadow 0.2s ease,
+        transform 0.15s ease;
+}
+
+.admin-item-edit-btn:hover {
+    background: var(--bg-accent-soft);
+    border-color: var(--accent-border);
+    color: var(--text-accent);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(99, 102, 241, 0.14);
+}
+
+.admin-item-edit-btn.is-active {
+    background: linear-gradient(135deg, var(--accent) 0%, #8b5cf6 100%);
+    border-color: transparent;
+    color: #fff;
+    box-shadow: 0 3px 10px rgba(99, 102, 241, 0.35);
+}
+
+.admin-item-edit-btn.is-active:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 14px rgba(99, 102, 241, 0.45);
+}
+
+.admin-item-edit-btn svg {
+    transition: transform 0.2s ease;
+}
+
+.admin-item-edit-btn.is-active svg {
+    transform: rotate(90deg);
+}
+
+/* Expanded panel with a subtle top gradient divider */
+.admin-item-expanded {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-top: 16px;
+    margin-top: 12px;
+    border-top: 1px solid var(--border);
+    position: relative;
+}
+
+.admin-item-expanded::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        var(--accent-border) 20%,
+        var(--accent-border) 80%,
+        transparent
+    );
+}
+
+/* Slightly richer treatment for the preview that appears inside an expanded panel. */
+.admin-item-expanded .admin-media-thumb,
+.admin-item-expanded .admin-video-thumb {
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.10);
+}
+
+.admin-item-card-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    min-width: 0;
+}
+
+.admin-drag-handle {
+    cursor: grab;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    padding: 4px;
+}
+
+.admin-drag-handle:active {
+    cursor: grabbing;
+}
+
+.admin-item-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+
+/* Inside a row, the title fills remaining space but can wrap below action
+   buttons on narrow cards (the parent head has flex-wrap: wrap). */
+.admin-item-card-head .admin-item-title {
+    flex: 1 1 140px;
+    min-width: 140px;
+}
+
+.admin-item-title-placeholder {
+    color: var(--text-muted);
+    font-style: italic;
+    font-weight: 500;
+}
+
+.admin-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.admin-field label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+/* Inline hint beside a field label — don't inherit the uppercase/letter-spacing
+   treatment so "(optional)" reads as normal prose. */
+.admin-field label .hint {
+    text-transform: none;
+    letter-spacing: normal;
+    font-weight: 400;
+    color: var(--text-muted);
+    margin-left: 4px;
+}
+
+/* Checkbox-style label (e.g. "Show route" disclosure) — opt-out of the
+   uppercase label treatment so it reads as a normal control. */
+.admin-field .admin-field-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    text-transform: none;
+    letter-spacing: normal;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    width: fit-content;
+}
+
+.admin-field .admin-field-inline input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+    accent-color: var(--accent);
+    cursor: pointer;
+}
+
+/* ── Product details: image preview + form fields side-by-side ──
+   Keeps the image a sensible size on the left and lets the form breathe. */
+.product-details-grid {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+@media (max-width: 720px) {
+    .product-details-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.product-details-media {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.product-details-thumb {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+    display: block;
+}
+
+.product-details-thumb.is-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+}
+
+.product-details-media-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.product-details-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 0;
+}
+
+.admin-field input,
+.admin-field textarea,
+.admin-field select {
+    padding: 8px 12px;
+    border: 1.5px solid var(--border-input);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    color: var(--text-primary);
+    background: var(--bg-input);
+    outline: none;
+    font-family: inherit;
+    transition: border-color var(--transition), background var(--transition), box-shadow var(--transition);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.admin-field textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.admin-field select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-right: 34px;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 14 14' fill='none'><path d='M3 5l4 4 4-4' stroke='%236366f1' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 12px 12px;
+    cursor: pointer;
+    line-height: 1.3;
+}
+
+.admin-field input:focus,
+.admin-field textarea:focus,
+.admin-field select:focus {
+    border-color: var(--border-focus);
+    background-color: var(--bg-surface);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.10);
+}
+
+.admin-field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+@media (max-width: 600px) {
+    .admin-field-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ── Image / Media preview thumbs ──
+   Compact, bounded previews so a single image never dominates a card. Callers
+   that need a larger gallery-style thumb can wrap with `.admin-media-gallery`. */
+.admin-media-thumb {
+    width: 220px;
+    height: 130px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    align-self: flex-start;
+}
+
+.admin-video-thumb {
+    width: 320px;
+    max-width: 100%;
+    max-height: 180px;
+    border-radius: var(--radius-sm);
+    background: #000;
+    align-self: flex-start;
+}
+
+/* Multi-thumb gallery: lays out many previews as a wrapping grid. */
+.admin-media-gallery {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.admin-media-gallery .admin-media-thumb,
+.admin-media-gallery .admin-video-thumb {
+    margin: 0;
+}
+
+/* ── Toggle switch ── */
+.admin-toggle {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.admin-toggle input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.admin-toggle-track {
+    width: 34px;
+    height: 19px;
+    background: var(--toggle-off);
+    border-radius: 999px;
+    position: relative;
+    transition: background var(--transition);
+}
+
+.admin-toggle-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 15px;
+    height: 15px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform var(--transition);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.admin-toggle input:checked + .admin-toggle-track {
+    background: var(--accent);
+}
+
+.admin-toggle input:checked + .admin-toggle-track .admin-toggle-thumb {
+    transform: translateX(15px);
+}
+
+/* ── Action buttons row ── */
+.admin-actions-bar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 22px;
+    background: linear-gradient(135deg, var(--accent) 0%, #8b5cf6 100%);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.2s ease,
+        filter 0.2s ease;
+    box-shadow:
+        0 2px 4px rgba(99, 102, 241, 0.18),
+        0 6px 20px rgba(99, 102, 241, 0.22);
+}
+
+.btn-primary:hover:not(:disabled) {
+    transform: translateY(-1px);
+    filter: brightness(1.05);
+    box-shadow:
+        0 4px 8px rgba(99, 102, 241, 0.22),
+        0 10px 28px rgba(99, 102, 241, 0.30);
+}
+
+.btn-primary:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    box-shadow: none;
+    filter: saturate(0.7);
+}
+
+.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 18px;
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition:
+        background 0.18s ease,
+        border-color 0.18s ease,
+        color 0.18s ease,
+        transform 0.15s ease,
+        box-shadow 0.2s ease;
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background: var(--bg-accent-soft);
+    border-color: var(--accent-border);
+    color: var(--text-accent);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.14);
+}
+
+.admin-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Grid layout for list pages that want multiple cards per row.
+   A card with `.is-row-span` (editing/expanded) stretches across the full row
+   so its fields don't get squeezed. */
+.admin-list.is-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 14px;
+    align-items: start;
+}
+
+.admin-list.is-grid .admin-item-card.is-row-span {
+    grid-column: 1 / -1;
+}
+
+.admin-loading {
+    padding: 40px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+.admin-page-tabs {
+    display: flex;
+    gap: 4px;
+    padding: 4px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    margin-bottom: 20px;
+    overflow-x: auto;
+}
+
+.admin-page-tab {
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background var(--transition), color var(--transition);
+}
+
+.admin-page-tab:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+.admin-page-tab.active {
+    background: var(--bg-accent-soft);
+    color: var(--text-accent);
+    font-weight: 600;
+}
+
+/* ── Admin section (used on product detail page) ── */
+.admin-section {
+    margin-top: 28px;
+}
+
+.admin-section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.admin-section-title {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+}
+
+/* ── Product category grid (Products page) ── */
+.products-categories {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.products-category-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.products-category-bar {
+    width: 3px;
+    height: 14px;
+    background: var(--accent);
+    border-radius: 2px;
+}
+
+.products-category-label {
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+}
+
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+
+@media (max-width: 1100px) {
+    .products-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 680px) {
+    .products-grid { grid-template-columns: 1fr; }
+}
+
+.product-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 14px;
+    min-height: 76px;
+    transition: background var(--transition), border-color var(--transition), box-shadow var(--transition);
+}
+
+.product-card.is-disabled {
+    opacity: 0.6;
+}
+
+.product-card-icon {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    object-fit: cover;
+    background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-accent-soft) 100%);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.product-card-body {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    justify-content: center;
+}
+
+.product-card-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-primary);
+    line-height: 1.25;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.product-card-subtitle {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.product-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.product-card-edit {
+    padding: 5px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: transparent;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-family: inherit;
+    transition: background var(--transition), border-color var(--transition), color var(--transition);
+}
+
+.product-card-edit:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+/* Section kind pill — tiny badge that labels a section as image/video/card. */
+.admin-kind-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    border: 1px solid var(--border);
+    background: var(--bg-subtle, rgba(99, 102, 241, 0.06));
+    color: var(--text-secondary);
+}
+
+.admin-kind-pill.admin-kind-image { color: #4338ca; border-color: rgba(67, 56, 202, 0.3); background: rgba(99, 102, 241, 0.08); }
+.admin-kind-pill.admin-kind-video { color: #be185d; border-color: rgba(190, 24, 93, 0.3); background: rgba(236, 72, 153, 0.08); }
+.admin-kind-pill.admin-kind-card  { color: #047857; border-color: rgba(4, 120, 87, 0.3);  background: rgba(16, 185, 129, 0.08); }

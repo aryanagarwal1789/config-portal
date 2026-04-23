@@ -1,0 +1,326 @@
+/* ── Config form wrapper ── */
+.config-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    max-width: 860px;
+}
+
+/* ── Section card ── */
+.form-section {
+    background: var(--bg-surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: var(--shadow-sm);
+    transition: background var(--transition), border-color var(--transition);
+    position: relative;
+}
+
+/* Space between stacked sections */
+.form-section + .form-section,
+.config-form > .form-section + .form-section {
+    margin-top: 4px;
+}
+
+/* Prominent header: accent left bar, tinted background strip, bleeds to card edges */
+.section-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    /* Bleed to edges via negative margins, then add matching padding */
+    margin: -24px -24px 4px -24px;
+    padding: 16px 24px 16px 21px;   /* 24 - 3 accent bar = 21 on left */
+    background: linear-gradient(90deg, var(--bg-accent-soft) 0%, transparent 70%);
+    border-bottom: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-top-left-radius: calc(var(--radius-lg) - 1.5px);
+    border-top-right-radius: calc(var(--radius-lg) - 1.5px);
+    transition: border-color var(--transition), background var(--transition);
+}
+
+.section-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    letter-spacing: -0.01em;
+    transition: color var(--transition);
+}
+
+/* When a section's title is an editable input (e.g. ImagesPage), match the
+   heading styling so it reads as a heading, not a form field, and keep the
+   background transparent to show the tinted header band behind it. */
+input.section-title {
+    font-family: inherit;
+    background: transparent;
+    border: none;
+    padding: 0;
+    outline: none;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--text-primary);
+    width: 100%;
+    max-width: 400px;
+}
+
+.section-count-badge {
+    flex-shrink: 0;
+    padding: 4px 12px;
+    background: var(--bg-accent-soft);
+    color: var(--text-accent);
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    border: 1px solid var(--accent-border);
+    transition: background var(--transition), color var(--transition);
+}
+
+.section-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: -10px 0 0;
+    line-height: 1.6;
+    transition: color var(--transition);
+}
+
+/* ── Form groups ── */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.form-group label,
+.sublabel {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    transition: color var(--transition);
+}
+
+.form-group-center {
+    align-items: center;
+}
+
+/* ── Inputs ── */
+.form-group input[type="text"],
+.form-group input:not([type="checkbox"]),
+.config-form input:not([type="checkbox"]),
+.config-form textarea {
+    padding: 9px 13px;
+    border: 1.5px solid var(--border-input);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    color: var(--text-primary);
+    background: var(--bg-input);
+    outline: none;
+    transition: border-color var(--transition), background var(--transition), box-shadow var(--transition);
+    width: 100%;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.config-form input:not([type="checkbox"]):focus,
+.config-form textarea:focus {
+    border-color: var(--border-focus);
+    background: var(--bg-surface);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.10);
+}
+
+.config-form textarea {
+    resize: vertical;
+    min-height: 66px;
+}
+
+/* ── Input placeholder ── */
+.config-form input::placeholder,
+.config-form textarea::placeholder {
+    color: var(--text-muted);
+}
+
+/* ── Form layout ── */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+@media (max-width: 600px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+.form-divider {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    padding: 10px 0 4px;
+    border-top: 1px solid var(--border);
+    margin-top: 4px;
+    transition: color var(--transition), border-color var(--transition);
+}
+
+.hint {
+    font-weight: 400;
+    color: var(--text-muted);
+    font-size: 12px;
+    transition: color var(--transition);
+}
+
+/* Inside a form-group, shrink media previews so the upload row stays compact.
+   A small inline preview is enough — the public page is the source of truth. */
+.form-group > .admin-media-thumb {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 8px;
+    align-self: flex-start;
+}
+
+.form-group > .admin-video-thumb {
+    width: 220px;
+    max-width: 100%;
+    max-height: 130px;
+}
+
+/* Inside an actions bar, inputs should flex — not steal 100% width, which
+   forces the Upload/Clear buttons to wrap onto a new line. */
+.admin-actions-bar input:not([type="checkbox"]) {
+    flex: 1 1 240px;
+    width: auto;
+    min-width: 0;
+}
+
+/* ── Navbar items ── */
+.navbar-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.navbar-item {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto auto;
+    gap: 10px;
+    align-items: center;
+}
+
+.toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color var(--transition);
+}
+
+/* ── Sidebar items ── */
+.sidebar-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.sidebar-item {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 14px;
+    transition: background var(--transition), border-color var(--transition);
+}
+
+.sidebar-item-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr auto auto;
+    gap: 12px;
+    align-items: end;
+}
+
+/* ── Buttons ── */
+.btn-save {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 26px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background var(--transition), box-shadow var(--transition), transform var(--transition);
+    box-shadow: var(--shadow-accent);
+}
+
+.btn-save:hover:not(:disabled) {
+    background: var(--accent-hover);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.30);
+    transform: translateY(-1px);
+}
+
+.btn-save:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.btn-save:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.btn-add {
+    align-self: flex-start;
+    padding: 8px 16px;
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background var(--transition), border-color var(--transition), color var(--transition);
+}
+
+.btn-add:hover {
+    background: var(--bg-hover);
+    border-color: var(--border-hover);
+    color: var(--text-primary);
+}
+
+.btn-remove {
+    padding: 5px 11px;
+    background: var(--bg-danger-soft);
+    color: var(--text-danger);
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background var(--transition), color var(--transition);
+}
+
+.btn-remove:hover {
+    background: var(--text-danger);
+    color: #fff;
+}
+
+.btn-remove-icon {
+    padding: 6px 10px;
+}

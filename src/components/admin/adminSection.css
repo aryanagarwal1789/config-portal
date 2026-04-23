@@ -1,0 +1,434 @@
+/* ── Collapsible section card ── */
+.admin-section {
+    /* Each accent variant provides these CSS custom properties: */
+    --sec-grad-1: rgba(99, 102, 241, 0.05);
+    --sec-grad-2: rgba(139, 92, 246, 0.06);
+    --sec-grad-3: rgba(14, 165, 233, 0.05);
+    --sec-border: rgba(99, 102, 241, 0.25);
+    --sec-header-tint: rgba(99, 102, 241, 0.08);
+    --sec-header-tint-hover: rgba(99, 102, 241, 0.14);
+    --sec-body-1: rgba(99, 102, 241, 0.04);
+    --sec-body-2: rgba(139, 92, 246, 0.06);
+    --sec-bar-1: #6366f1;
+    --sec-bar-2: #8b5cf6;
+    --sec-shadow: rgba(99, 102, 241, 0.08);
+    --sec-shadow-strong: rgba(99, 102, 241, 0.14);
+    --sec-hover-glow: rgba(99, 102, 241, 0.12);
+
+    background: linear-gradient(
+        135deg,
+        var(--sec-grad-1) 0%,
+        var(--sec-grad-2) 55%,
+        var(--sec-grad-3) 100%
+    );
+    border: 1.5px solid var(--sec-border);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.25s ease,
+        transform 0.2s ease;
+    box-shadow:
+        0 1px 3px var(--sec-shadow),
+        0 6px 22px var(--sec-shadow);
+    position: relative;
+    isolation: isolate;
+}
+
+/* ── Accent variants ── */
+.admin-section.accent-indigo {
+    --sec-grad-1: rgba(99, 102, 241, 0.06);
+    --sec-grad-2: rgba(139, 92, 246, 0.08);
+    --sec-grad-3: rgba(14, 165, 233, 0.06);
+    --sec-border: rgba(99, 102, 241, 0.28);
+    --sec-header-tint: rgba(99, 102, 241, 0.10);
+    --sec-header-tint-hover: rgba(99, 102, 241, 0.16);
+    --sec-body-1: rgba(99, 102, 241, 0.05);
+    --sec-body-2: rgba(139, 92, 246, 0.07);
+    --sec-bar-1: #6366f1;
+    --sec-bar-2: #8b5cf6;
+    --sec-shadow: rgba(99, 102, 241, 0.10);
+    --sec-shadow-strong: rgba(99, 102, 241, 0.18);
+    --sec-hover-glow: rgba(99, 102, 241, 0.14);
+}
+
+.admin-section.accent-purple {
+    --sec-grad-1: rgba(168, 85, 247, 0.07);
+    --sec-grad-2: rgba(139, 92, 246, 0.09);
+    --sec-grad-3: rgba(217, 70, 239, 0.06);
+    --sec-border: rgba(168, 85, 247, 0.30);
+    --sec-header-tint: rgba(168, 85, 247, 0.11);
+    --sec-header-tint-hover: rgba(168, 85, 247, 0.18);
+    --sec-body-1: rgba(168, 85, 247, 0.06);
+    --sec-body-2: rgba(217, 70, 239, 0.08);
+    --sec-bar-1: #a855f7;
+    --sec-bar-2: #d946ef;
+    --sec-shadow: rgba(168, 85, 247, 0.10);
+    --sec-shadow-strong: rgba(168, 85, 247, 0.18);
+    --sec-hover-glow: rgba(168, 85, 247, 0.14);
+}
+
+.admin-section.accent-pink {
+    --sec-grad-1: rgba(236, 72, 153, 0.07);
+    --sec-grad-2: rgba(244, 114, 182, 0.09);
+    --sec-grad-3: rgba(251, 146, 60, 0.06);
+    --sec-border: rgba(236, 72, 153, 0.28);
+    --sec-header-tint: rgba(236, 72, 153, 0.10);
+    --sec-header-tint-hover: rgba(236, 72, 153, 0.17);
+    --sec-body-1: rgba(236, 72, 153, 0.05);
+    --sec-body-2: rgba(251, 146, 60, 0.08);
+    --sec-bar-1: #ec4899;
+    --sec-bar-2: #fb7185;
+    --sec-shadow: rgba(236, 72, 153, 0.10);
+    --sec-shadow-strong: rgba(236, 72, 153, 0.18);
+    --sec-hover-glow: rgba(236, 72, 153, 0.14);
+}
+
+.admin-section.accent-cyan {
+    --sec-grad-1: rgba(14, 165, 233, 0.07);
+    --sec-grad-2: rgba(34, 211, 238, 0.09);
+    --sec-grad-3: rgba(20, 184, 166, 0.06);
+    --sec-border: rgba(14, 165, 233, 0.30);
+    --sec-header-tint: rgba(14, 165, 233, 0.11);
+    --sec-header-tint-hover: rgba(14, 165, 233, 0.18);
+    --sec-body-1: rgba(14, 165, 233, 0.06);
+    --sec-body-2: rgba(20, 184, 166, 0.08);
+    --sec-bar-1: #0ea5e9;
+    --sec-bar-2: #14b8a6;
+    --sec-shadow: rgba(14, 165, 233, 0.10);
+    --sec-shadow-strong: rgba(14, 165, 233, 0.18);
+    --sec-hover-glow: rgba(14, 165, 233, 0.14);
+}
+
+.admin-section.accent-emerald {
+    --sec-grad-1: rgba(16, 185, 129, 0.07);
+    --sec-grad-2: rgba(34, 197, 94, 0.09);
+    --sec-grad-3: rgba(132, 204, 22, 0.06);
+    --sec-border: rgba(16, 185, 129, 0.28);
+    --sec-header-tint: rgba(16, 185, 129, 0.10);
+    --sec-header-tint-hover: rgba(16, 185, 129, 0.17);
+    --sec-body-1: rgba(16, 185, 129, 0.06);
+    --sec-body-2: rgba(132, 204, 22, 0.07);
+    --sec-bar-1: #10b981;
+    --sec-bar-2: #84cc16;
+    --sec-shadow: rgba(16, 185, 129, 0.10);
+    --sec-shadow-strong: rgba(16, 185, 129, 0.18);
+    --sec-hover-glow: rgba(16, 185, 129, 0.14);
+}
+
+.admin-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(
+        ellipse 60% 40% at 0% 0%,
+        var(--sec-shadow-strong),
+        transparent 70%
+    );
+    z-index: -1;
+}
+
+.admin-section:hover {
+    box-shadow:
+        0 2px 6px var(--sec-shadow-strong),
+        0 10px 36px var(--sec-hover-glow);
+}
+
+.admin-section + .admin-section,
+.config-form > .admin-section + .admin-section {
+    margin-top: 22px;
+}
+
+.admin-section.is-collapsed {
+    box-shadow:
+        0 1px 3px var(--sec-shadow),
+        0 3px 12px var(--sec-shadow);
+}
+
+/* ── Header: gradient strip, left accent bar, bigger title ── */
+.admin-section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 15px 20px 15px 18px;
+    background: linear-gradient(
+        90deg,
+        var(--sec-header-tint) 0%,
+        var(--bg-surface) 70%
+    );
+    border-left: 3px solid transparent;
+    border-image: linear-gradient(180deg, var(--sec-bar-1) 0%, var(--sec-bar-2) 100%) 1 0 1 0;
+    border-bottom: 1px solid var(--sec-border);
+    min-height: 56px;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.admin-section.is-collapsed .admin-section-header {
+    border-bottom: none;
+}
+
+.admin-section-header.is-clickable {
+    cursor: pointer;
+    user-select: none;
+}
+
+.admin-section-header.is-clickable:hover {
+    background: linear-gradient(
+        90deg,
+        var(--sec-header-tint-hover) 0%,
+        var(--sec-header-tint) 70%,
+        var(--bg-surface) 100%
+    );
+}
+
+.admin-section-header.is-clickable:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+}
+
+/* Caret badge — a gradient pill with the chevron inside (matches accent) */
+.admin-section-caret {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    color: #fff;
+    flex-shrink: 0;
+    border-radius: 9px;
+    background: linear-gradient(135deg, var(--sec-bar-1) 0%, var(--sec-bar-2) 100%);
+    box-shadow: 0 2px 6px var(--sec-shadow-strong);
+}
+
+/* Heading container */
+.admin-section-heading {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+}
+
+.admin-section-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    letter-spacing: -0.01em;
+    transition: color var(--transition);
+}
+
+.admin-section-title-input {
+    font-family: inherit;
+    background: transparent;
+    border: none;
+    padding: 0;
+    outline: none;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--text-primary);
+    width: 100%;
+    max-width: 400px;
+}
+
+.admin-section-title-input:focus {
+    border-bottom: 1.5px solid var(--accent);
+    padding-bottom: 1px;
+    margin-bottom: -2.5px;
+}
+
+/* Actions on the right of header */
+.admin-section-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* Styled <select> used inside the section header (e.g. cardinality picker) */
+.admin-section-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding: 7px 30px 7px 14px;
+    background-color: var(--bg-surface);
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 14 14' fill='none'><path d='M3 5l4 4 4-4' stroke='%236366f1' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 12px 12px;
+    color: var(--text-primary);
+    border: 1.5px solid var(--border);
+    border-radius: 999px;
+    font-size: 12.5px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    line-height: 1;
+    outline: none;
+    transition: background-color var(--transition), border-color var(--transition), color var(--transition), box-shadow var(--transition);
+}
+
+.admin-section-select:hover {
+    background-color: var(--bg-accent-soft);
+    border-color: var(--accent-border);
+    color: var(--text-accent);
+}
+
+.admin-section-select:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.14);
+}
+
+/* Gradient pill badge — matches accent */
+.admin-section-badge {
+    flex-shrink: 0;
+    padding: 5px 13px;
+    background: linear-gradient(
+        135deg,
+        var(--sec-header-tint) 0%,
+        var(--sec-header-tint-hover) 100%
+    );
+    color: var(--sec-bar-1);
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    border: 1px solid var(--sec-border);
+    box-shadow: 0 1px 2px var(--sec-shadow);
+    transition: background var(--transition), color var(--transition);
+}
+
+/* ── Body: subtle fading gradient tray (matches accent) ── */
+.admin-section-body {
+    padding: 20px 22px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    background: linear-gradient(
+        180deg,
+        var(--sec-body-1) 0%,
+        var(--sec-body-2) 100%
+    );
+}
+
+.admin-section-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 0 0 2px 0;
+    line-height: 1.55;
+}
+
+/* ── Items inside body: white cards with hover lift ── */
+.admin-section-body .admin-item-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    box-shadow:
+        0 1px 2px rgba(15, 23, 42, 0.04),
+        0 2px 8px rgba(99, 102, 241, 0.04);
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.admin-section-body .admin-item-card:hover {
+    transform: translateY(-1px);
+    border-color: var(--sec-border);
+    box-shadow:
+        0 2px 4px rgba(15, 23, 42, 0.05),
+        0 8px 24px var(--sec-hover-glow);
+}
+
+.admin-section-body .admin-item-card.is-dragging {
+    transform: scale(1.01);
+    box-shadow:
+        0 4px 8px rgba(15, 23, 42, 0.08),
+        0 16px 40px var(--sec-shadow-strong);
+    border-color: var(--sec-bar-1);
+}
+
+.admin-section-body .admin-item-card.is-expanded {
+    border-color: var(--sec-border);
+    box-shadow:
+        0 2px 4px rgba(15, 23, 42, 0.05),
+        0 10px 32px var(--sec-hover-glow);
+}
+
+.admin-section-body .admin-empty {
+    background: var(--bg-surface);
+    border-color: var(--accent-border);
+    border-style: dashed;
+}
+
+/* Inputs inside sections — white so they pop against the tinted body */
+.admin-section-body .form-group input:not([type="checkbox"]),
+.admin-section-body .form-group textarea,
+.admin-section-body .admin-field input:not([type="checkbox"]),
+.admin-section-body .admin-field textarea {
+    background: var(--bg-surface);
+}
+
+.admin-section-body .form-group input:not([type="checkbox"]):focus,
+.admin-section-body .form-group textarea:focus,
+.admin-section-body .admin-field input:not([type="checkbox"]):focus,
+.admin-section-body .admin-field textarea:focus {
+    background: var(--bg-surface);
+}
+
+/* Dark-mode fine-tuning: keep gradients subtler so they don't wash out */
+[data-theme='dark'] .admin-section {
+    background: linear-gradient(
+        135deg,
+        rgba(129, 140, 248, 0.08) 0%,
+        rgba(167, 139, 250, 0.08) 55%,
+        rgba(56, 189, 248, 0.06) 100%
+    );
+    box-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.35),
+        0 6px 22px rgba(0, 0, 0, 0.35);
+}
+
+[data-theme='dark'] .admin-section::before {
+    background: radial-gradient(
+        ellipse 60% 40% at 0% 0%,
+        rgba(129, 140, 248, 0.14),
+        transparent 70%
+    );
+}
+
+[data-theme='dark'] .admin-section-header {
+    background: linear-gradient(
+        90deg,
+        rgba(129, 140, 248, 0.14) 0%,
+        var(--bg-surface) 70%
+    );
+}
+
+[data-theme='dark'] .admin-section-header.is-clickable:hover {
+    background: linear-gradient(
+        90deg,
+        rgba(129, 140, 248, 0.22) 0%,
+        rgba(167, 139, 250, 0.10) 70%,
+        var(--bg-surface) 100%
+    );
+}
+
+[data-theme='dark'] .admin-section-body {
+    background: linear-gradient(
+        180deg,
+        rgba(129, 140, 248, 0.06) 0%,
+        rgba(167, 139, 250, 0.10) 100%
+    );
+}
+
+[data-theme='dark'] .admin-section-body .admin-item-card:hover {
+    box-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.3),
+        0 8px 24px rgba(129, 140, 248, 0.25);
+}
+
+[data-theme='dark'] .admin-section-body .admin-item-card.is-expanded {
+    box-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.3),
+        0 10px 32px rgba(129, 140, 248, 0.28);
+}

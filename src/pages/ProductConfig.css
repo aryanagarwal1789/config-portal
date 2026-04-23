@@ -1,0 +1,149 @@
+.product-config-page {
+    padding: 32px 28px 64px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+/* ── Hero Header Card ── */
+.pc-hero-card {
+    background: linear-gradient(135deg, #0f766e 0%, #0891b2 50%, #6366f1 100%);
+    border-radius: var(--radius-xl);
+    padding: 32px 36px 28px;
+    margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(8,145,178,0.25), 0 2px 8px rgba(8,145,178,0.10);
+}
+
+.pc-hero-card::before {
+    content: '';
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 200px;
+    height: 200px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.pc-hero-card::after {
+    content: '';
+    position: absolute;
+    bottom: -30px;
+    left: 25%;
+    width: 140px;
+    height: 140px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.pc-hero-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 1;
+}
+
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: inherit;
+    width: fit-content;
+    margin-bottom: 12px;
+    transition: background var(--transition), border-color var(--transition), color var(--transition), box-shadow var(--transition);
+    box-shadow: var(--shadow-sm);
+}
+
+.back-btn:hover {
+    background: var(--bg-hover);
+    border-color: var(--border-hover);
+    color: var(--text-primary);
+}
+
+.pc-header-text {
+    flex: 1;
+}
+
+.pc-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 6px;
+}
+
+.pc-title {
+    font-size: 28px;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.03em;
+    margin-bottom: 4px;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.15);
+}
+
+.pc-subtitle {
+    font-size: 14px;
+    color: rgba(255,255,255,0.75);
+    margin: 0;
+}
+
+/* ── Stats strip ── */
+.pc-stats-strip {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+}
+
+.pc-stat-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    background: rgba(255,255,255,0.13);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.92);
+    backdrop-filter: blur(4px);
+}
+
+.pc-stat-chip svg {
+    opacity: 0.8;
+    flex-shrink: 0;
+}
+
+/* ── Product avatar in hero ── */
+.pc-product-avatar {
+    width: 48px;
+    height: 48px;
+    background: rgba(255,255,255,0.18);
+    border: 1.5px solid rgba(255,255,255,0.3);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 800;
+    color: #fff;
+    flex-shrink: 0;
+    backdrop-filter: blur(4px);
+    margin-top: 2px;
+}

@@ -1,0 +1,352 @@
+.seo-fields-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* ── Section labels ── */
+.seo-section-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+}
+
+/* ── Field ── */
+.seo-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.seo-field label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+}
+
+.seo-field-hint {
+    font-weight: 400;
+    font-size: 11px;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--text-muted);
+}
+
+.seo-field input,
+.seo-field textarea {
+    padding: 8px 10px;
+    border: 1.5px solid var(--border-input);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    color: var(--text-primary);
+    background: var(--bg-surface);
+    outline: none;
+    font-family: inherit;
+    transition: border-color var(--transition), box-shadow var(--transition);
+    box-sizing: border-box;
+    width: 100%;
+    resize: vertical;
+}
+
+.seo-field input:focus,
+.seo-field textarea:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.10);
+}
+
+.seo-field input::placeholder,
+.seo-field textarea::placeholder {
+    color: var(--text-muted);
+}
+
+/* ── Grid layouts ── */
+.seo-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.seo-grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+}
+
+/* ── Schemas list ── */
+.schemas-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* ── Schema card ── */
+.schema-card {
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--bg-elevated);
+    transition: border-color var(--transition), background var(--transition);
+    overflow: hidden;
+}
+
+.schema-card.schema-enabled {
+    border-color: var(--accent);
+    background: var(--bg-accent-soft);
+}
+
+.schema-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    cursor: default;
+    user-select: none;
+}
+
+.schema-card.schema-enabled .schema-card-header {
+    cursor: pointer;
+}
+
+.schema-card-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.schema-icon {
+    font-size: 15px;
+    line-height: 1;
+}
+
+.schema-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* ── Schema toggle (mini pill) ── */
+.schema-toggle {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.schema-toggle input { display: none; }
+
+.s-track {
+    display: block;
+    width: 30px;
+    height: 17px;
+    background: var(--toggle-off);
+    border-radius: 20px;
+    position: relative;
+    transition: background var(--transition);
+}
+
+.schema-toggle input:checked + .s-track {
+    background: var(--accent);
+}
+
+.s-thumb {
+    position: absolute;
+    top: 2.5px;
+    left: 2.5px;
+    width: 12px;
+    height: 12px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.20);
+}
+
+.schema-toggle input:checked + .s-track .s-thumb {
+    transform: translateX(13px);
+}
+
+/* ── Chevron ── */
+.schema-chevron {
+    display: flex;
+    align-items: center;
+    color: var(--text-muted);
+    transition: transform 0.2s, color var(--transition);
+}
+
+.schema-chevron.open {
+    transform: rotate(180deg);
+}
+
+/* ── Schema card body ── */
+.schema-card-body {
+    padding: 12px 14px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: var(--bg-surface);
+}
+
+/* ── FAQ schema list ── */
+.faq-schema-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.faq-schema-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 12px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+}
+
+.faq-schema-item-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.faq-schema-num {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.faq-schema-remove {
+    font-size: 11px;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    transition: color var(--transition), background var(--transition);
+    font-family: inherit;
+}
+
+.faq-schema-remove:hover {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.08);
+}
+
+.faq-schema-item input,
+.faq-schema-item textarea {
+    padding: 7px 9px;
+    border: 1.5px solid var(--border-input);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    color: var(--text-primary);
+    background: var(--bg-surface);
+    outline: none;
+    font-family: inherit;
+    transition: border-color var(--transition), box-shadow var(--transition);
+    box-sizing: border-box;
+    width: 100%;
+    resize: vertical;
+}
+
+.faq-schema-item input:focus,
+.faq-schema-item textarea:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.10);
+}
+
+.faq-schema-item input::placeholder,
+.faq-schema-item textarea::placeholder {
+    color: var(--text-muted);
+}
+
+/* ── Add button ── */
+.seo-btn-add {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    background: none;
+    border: 1.5px dashed var(--accent);
+    border-radius: var(--radius-sm);
+    padding: 7px 14px;
+    cursor: pointer;
+    width: 100%;
+    transition: background var(--transition), color var(--transition);
+    font-family: inherit;
+}
+
+.seo-btn-add:hover {
+    background: var(--bg-accent-soft);
+}
+
+/* ── Image URL + upload ── */
+.seo-image-input {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.seo-image-input-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.seo-image-input-row input {
+    flex: 1;
+}
+
+.seo-image-thumb {
+    width: 44px;
+    height: 44px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg-hover);
+    flex-shrink: 0;
+}
+
+.seo-image-thumb.placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+}
+
+.seo-image-upload-btn {
+    background: var(--bg-accent-soft);
+    color: var(--accent);
+    border: 1px solid var(--accent-border);
+    border-radius: var(--radius-sm);
+    padding: 6px 12px;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+    transition: background var(--transition), color var(--transition), opacity var(--transition);
+}
+
+.seo-image-upload-btn:hover:not(:disabled) {
+    background: var(--accent);
+    color: #fff;
+}
+
+.seo-image-upload-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.seo-image-error {
+    font-size: 11px;
+    color: var(--danger, #dc2626);
+}
