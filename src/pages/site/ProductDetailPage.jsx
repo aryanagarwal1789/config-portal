@@ -188,27 +188,16 @@ export default function ProductDetailPage() {
                             />
                         </div>
 
-                        <div className="admin-field-row">
-                            <div className="admin-field">
-                                <label>Category</label>
-                                <select
-                                    value={details.category}
-                                    onChange={(e) => setDetails({ ...details, category: e.target.value })}
-                                >
-                                    {CATEGORIES.map((c) => (
-                                        <option key={c.id} value={c.id}>{c.label}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div className="admin-field">
-                                <label>Image URL</label>
-                                <input
-                                    value={details.image}
-                                    onChange={(e) => setDetails({ ...details, image: e.target.value })}
-                                    placeholder="https://…"
-                                />
-                            </div>
+                        <div className="admin-field">
+                            <label>Category</label>
+                            <select
+                                value={details.category}
+                                onChange={(e) => setDetails({ ...details, category: e.target.value })}
+                            >
+                                {CATEGORIES.map((c) => (
+                                    <option key={c.id} value={c.id}>{c.label}</option>
+                                ))}
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -244,7 +233,6 @@ export default function ProductDetailPage() {
                                                     <DragHandle attributes={attributes} listeners={listeners} />
                                                     <div className="admin-item-title">
                                                         {item.label || <span className="admin-item-title-placeholder">Untitled item</span>}
-                                                        {item.route && <span className="hint" style={{ marginLeft: 8 }}>{item.route}</span>}
                                                     </div>
                                                     <label className="admin-toggle" onClick={(e) => e.stopPropagation()}>
                                                         <input

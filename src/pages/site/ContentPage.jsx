@@ -80,15 +80,10 @@ export default function ContentPage() {
 
                     <div className="form-group">
                         <label>Image</label>
-                        {content.image && <img src={content.image} alt="" className="admin-media-thumb" />}
+                        {content.image && <img src={content.image} alt="" className="admin-media-thumb admin-media-thumb--hero" />}
                         <div className="admin-actions-bar">
-                            <input
-                                value={content.image}
-                                onChange={(e) => update({ image: e.target.value })}
-                                placeholder="https://… or upload"
-                            />
                             <FileUploadButton
-                                label="Upload"
+                                label={content.image ? 'Replace' : 'Upload'}
                                 accept="image/*"
                                 onUploaded={(url) => update({ image: url })}
                                 onError={(msg) => setToast({ type: 'error', message: msg })}

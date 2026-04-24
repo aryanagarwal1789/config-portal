@@ -8,7 +8,7 @@ import SortableList, { SortableRow, DragHandle } from '../../components/admin/So
 import '../../components/admin/adminShared.css';
 import '../../components/forms.css';
 
-const SECTION_ACCENTS = ['indigo', 'purple', 'pink', 'cyan', 'emerald'];
+const SECTION_ACCENT = 'indigo';
 
 const KIND_LABELS = {
     image: 'Images',
@@ -21,7 +21,7 @@ const rand = () => Math.random().toString(36).slice(2, 7);
 
 const newItemForKind = (kind, url = '') => {
     if (kind === 'image') {
-        return { id: `img-${Date.now()}-${rand()}`, url, alt: '', caption: '', order: 0 };
+        return { id: `img-${Date.now()}-${rand()}`, url, alt: '', order: 0 };
     }
     if (kind === 'video') {
         return {
@@ -84,38 +84,32 @@ function ImageItemEditor({ item, onChange, onReplaceUrl, onError }) {
         <div className="admin-item-expanded">
             {item.url && <img src={item.url} alt={item.alt || ''} className="admin-media-thumb" />}
             <div className="admin-field">
-                <label>Image URL</label>
+                <label>Image</label>
                 <div className="admin-actions-bar">
-                    <input
-                        value={item.url}
-                        onChange={(e) => onChange({ url: e.target.value })}
-                        placeholder="https://…"
-                    />
                     <FileUploadButton
                         label={item.url ? 'Replace' : 'Upload'}
                         accept="image/*"
                         onUploaded={onReplaceUrl}
                         onError={onError}
                     />
+                    {item.url && (
+                        <button
+                            type="button"
+                            className="btn-remove"
+                            onClick={() => onChange({ url: '' })}
+                        >
+                            Clear
+                        </button>
+                    )}
                 </div>
             </div>
-            <div className="admin-field-row">
-                <div className="admin-field">
-                    <label>Alt text</label>
-                    <input
-                        value={item.alt || ''}
-                        onChange={(e) => onChange({ alt: e.target.value })}
-                        placeholder="Describe the image"
-                    />
-                </div>
-                <div className="admin-field">
-                    <label>Caption</label>
-                    <input
-                        value={item.caption || ''}
-                        onChange={(e) => onChange({ caption: e.target.value })}
-                        placeholder="Optional"
-                    />
-                </div>
+            <div className="admin-field">
+                <label>Alt text</label>
+                <input
+                    value={item.alt || ''}
+                    onChange={(e) => onChange({ alt: e.target.value })}
+                    placeholder="Describe the image"
+                />
             </div>
         </div>
     );
@@ -136,35 +130,46 @@ function VideoItemEditor({ item, onChange, onReplaceUrl, onError, autoPlay }) {
                 />
             )}
             <div className="admin-field">
-                <label>Video URL</label>
+                <label>Video</label>
                 <div className="admin-actions-bar">
-                    <input
-                        value={item.url}
-                        onChange={(e) => onChange({ url: e.target.value })}
-                        placeholder="https://…"
-                    />
                     <FileUploadButton
                         label={item.url ? 'Replace' : 'Upload'}
                         accept="video/*"
                         onUploaded={onReplaceUrl}
                         onError={onError}
                     />
+                    {item.url && (
+                        <button
+                            type="button"
+                            className="btn-remove"
+                            onClick={() => onChange({ url: '' })}
+                        >
+                            Clear
+                        </button>
+                    )}
                 </div>
             </div>
             <div className="admin-field">
                 <label>Thumbnail</label>
                 <div className="admin-actions-bar">
-                    <input
-                        value={item.thumbnail || ''}
-                        onChange={(e) => onChange({ thumbnail: e.target.value })}
-                        placeholder="https://… or upload"
-                    />
+                    {item.thumbnail && (
+                        <img src={item.thumbnail} alt="" className="admin-item-thumb-sm" />
+                    )}
                     <FileUploadButton
-                        label="Upload thumb"
+                        label={item.thumbnail ? 'Replace' : 'Upload thumb'}
                         accept="image/*"
                         onUploaded={(url) => onChange({ thumbnail: url })}
                         onError={onError}
                     />
+                    {item.thumbnail && (
+                        <button
+                            type="button"
+                            className="btn-remove"
+                            onClick={() => onChange({ thumbnail: '' })}
+                        >
+                            Clear
+                        </button>
+                    )}
                 </div>
             </div>
             <div className="admin-field-row">
@@ -243,17 +248,21 @@ function CardItemEditor({ item, onChange, onError }) {
             <div className="admin-field">
                 <label>Image</label>
                 <div className="admin-actions-bar">
-                    <input
-                        value={item.image || ''}
-                        onChange={(e) => onChange({ image: e.target.value })}
-                        placeholder="https://…"
-                    />
                     <FileUploadButton
                         label={item.image ? 'Replace' : 'Upload'}
                         accept="image/*"
                         onUploaded={(url) => onChange({ image: url })}
                         onError={onError}
                     />
+                    {item.image && (
+                        <button
+                            type="button"
+                            className="btn-remove"
+                            onClick={() => onChange({ image: '' })}
+                        >
+                            Clear
+                        </button>
+                    )}
                 </div>
             </div>
             <div className="admin-field-row">
@@ -337,7 +346,7 @@ function ItemRow({
     let headTitle = '';
     if (kind === 'image') {
         thumb = item.url ? <img src={item.url} alt="" className="admin-item-thumb-sm" /> : <div className="admin-item-thumb-sm" />;
-        headTitle = item.alt || item.caption || '';
+        headTitle = item.alt || '';
     } else if (kind === 'video') {
         thumb = item.thumbnail ? <img src={item.thumbnail} alt="" className="admin-item-thumb-sm is-video" /> : <div className="admin-item-thumb-sm is-video" />;
         headTitle = item.title || '';
@@ -747,7 +756,7 @@ export default function SectionsPage() {
                                         <SectionCard
                                             section={section}
                                             sIdx={sIdx}
-                                            accent={SECTION_ACCENTS[sIdx % SECTION_ACCENTS.length]}
+                                            accent={SECTION_ACCENT}
                                             expandedItems={expandedItems}
                                             toggleExpanded={toggleExpanded}
                                             updateSection={updateSection}

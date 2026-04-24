@@ -8,7 +8,7 @@ export const updateContent = (content) => api.put('/content', { content });
 
 // Landing sections — unified container for image / video / card / blog sections.
 // Each section declares its own `kind` and `cardinality`; item shape depends on
-// the kind (image: url/alt/caption — video: url/title/description/thumbnail —
+// the kind (image: url/alt — video: url/title/description/thumbnail —
 // card: title/subtitle/description/points/image — blog: blogId ref).
 export const getSections = () => api.get('/sections');
 export const updateSections = (sections) => api.put('/sections', { sections });

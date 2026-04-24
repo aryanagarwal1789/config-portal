@@ -22,7 +22,6 @@ const blankClientImage = (url = '') => ({
     id: `client-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
     url,
     alt: '',
-    caption: '',
     order: 0
 });
 
@@ -70,12 +69,6 @@ export default function ClientPage() {
 
     const removeImage = (idx) =>
         setPage((p) => ({ ...p, images: p.images.filter((_, i) => i !== idx) }));
-
-    const addImageEmpty = () => {
-        const created = blankClientImage();
-        setPage((p) => ({ ...p, images: [...p.images, created] }));
-        setExpandedImages((prev) => new Set(prev).add(created.id));
-    };
 
     const addImageUploaded = (url) => {
         const created = blankClientImage(url);
@@ -144,15 +137,12 @@ export default function ClientPage() {
 
                         <div className="form-group">
                             <label>Banner image</label>
+                            {page.bannerImage && (
+                                <img src={page.bannerImage} alt="" className="admin-media-thumb" />
+                            )}
                             <div className="admin-actions-bar">
-                                {page.bannerImage && <img src={page.bannerImage} alt="" className="admin-item-thumb-sm" />}
-                                <input
-                                    value={page.bannerImage}
-                                    onChange={(e) => update({ bannerImage: e.target.value })}
-                                    placeholder="https://… or upload"
-                                />
                                 <FileUploadButton
-                                    label="Upload"
+                                    label={page.bannerImage ? 'Replace' : 'Upload'}
                                     accept="image/*"
                                     onUploaded={(url) => update({ bannerImage: url })}
                                     onError={(msg) => setToast({ type: 'error', message: msg })}
@@ -172,18 +162,13 @@ export default function ClientPage() {
                         description="Client logos or photos. Drag to reorder."
                         badge={`${page.images.length} image${page.images.length === 1 ? '' : 's'}`}
                         actions={
-                            <>
-                                <FileUploadButton
-                                    label="+ Upload image"
-                                    className="btn-secondary"
-                                    accept="image/*"
-                                    onUploaded={addImageUploaded}
-                                    onError={(msg) => setToast({ type: 'error', message: msg })}
-                                />
-                                <button type="button" className="btn-secondary" onClick={addImageEmpty}>
-                                    + Add by URL
-                                </button>
-                            </>
+                            <FileUploadButton
+                                label="+ Upload image"
+                                className="btn-secondary"
+                                accept="image/*"
+                                onUploaded={addImageUploaded}
+                                onError={(msg) => setToast({ type: 'error', message: msg })}
+                            />
                         }
                     >
                         {page.images.length === 0 ? (
@@ -205,7 +190,7 @@ export default function ClientPage() {
                                                                 <div className="admin-item-thumb-sm" />
                                                             )}
                                                             <div className="admin-item-title">
-                                                                {img.alt || img.caption || <span className="admin-item-title-placeholder">Client image {idx + 1}</span>}
+                                                                {img.alt || <span className="admin-item-title-placeholder">Client image {idx + 1}</span>}
                                                             </div>
                                                             <button
                                                                 type="button"
@@ -223,39 +208,33 @@ export default function ClientPage() {
                                                                 {img.url && <img src={img.url} alt={img.alt || ''} className="admin-media-thumb" />}
 
                                                                 <div className="admin-field">
-                                                                    <label>Image URL</label>
+                                                                    <label>Image</label>
                                                                     <div className="admin-actions-bar">
-                                                                        <input
-                                                                            value={img.url}
-                                                                            onChange={(e) => updateImage(idx, { url: e.target.value })}
-                                                                            placeholder="https://…"
-                                                                        />
                                                                         <FileUploadButton
-                                                                            label="Upload"
+                                                                            label={img.url ? 'Replace' : 'Upload'}
                                                                             accept="image/*"
                                                                             onUploaded={(url) => updateImage(idx, { url })}
                                                                             onError={(msg) => setToast({ type: 'error', message: msg })}
                                                                         />
+                                                                        {img.url && (
+                                                                            <button
+                                                                                type="button"
+                                                                                className="btn-remove"
+                                                                                onClick={() => updateImage(idx, { url: '' })}
+                                                                            >
+                                                                                Clear
+                                                                            </button>
+                                                                        )}
                                                                     </div>
                                                                 </div>
 
-                                                                <div className="admin-field-row">
-                                                                    <div className="admin-field">
-                                                                        <label>Alt text</label>
-                                                                        <input
-                                                                            value={img.alt}
-                                                                            onChange={(e) => updateImage(idx, { alt: e.target.value })}
-                                                                            placeholder="e.g. Client logo"
-                                                                        />
-                                                                    </div>
-                                                                    <div className="admin-field">
-                                                                        <label>Caption</label>
-                                                                        <input
-                                                                            value={img.caption}
-                                                                            onChange={(e) => updateImage(idx, { caption: e.target.value })}
-                                                                            placeholder="Optional"
-                                                                        />
-                                                                    </div>
+                                                                <div className="admin-field">
+                                                                    <label>Alt text</label>
+                                                                    <input
+                                                                        value={img.alt}
+                                                                        onChange={(e) => updateImage(idx, { alt: e.target.value })}
+                                                                        placeholder="e.g. Client logo"
+                                                                    />
                                                                 </div>
                                                             </div>
                                                         )}

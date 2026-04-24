@@ -192,6 +192,27 @@ input.section-title {
     max-height: 130px;
 }
 
+/* Hero image preview and paired image/video previews share one size so the
+   landing hero and About Us media cards look consistent across pages. */
+.form-group > .admin-media-thumb--hero,
+.form-row--media-pair .form-group > .admin-media-thumb,
+.form-row--media-pair .form-group > .admin-video-thumb {
+    width: 240px;
+    max-width: 100%;
+    height: 140px;
+    max-height: none;
+    aspect-ratio: auto;
+    object-fit: contain;
+}
+
+/* Media pair row — pack columns to content width so the image and video sit
+   right next to each other instead of being stretched apart by a 1fr 1fr grid. */
+.form-row--media-pair {
+    grid-template-columns: auto auto;
+    justify-content: start;
+    gap: 24px;
+}
+
 /* Inside an actions bar, inputs should flex — not steal 100% width, which
    forces the Upload/Clear buttons to wrap onto a new line. */
 .admin-actions-bar input:not([type="checkbox"]) {

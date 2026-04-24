@@ -258,13 +258,17 @@ export default function SeoPage() {
                             <label>OG image</label>
                             {seo.ogImage && <img src={seo.ogImage} alt="" className="admin-media-thumb" />}
                             <div className="admin-actions-bar">
-                                <input value={seo.ogImage} onChange={(e) => update({ ogImage: e.target.value })} placeholder="https://…" />
                                 <FileUploadButton
-                                    label="Upload"
+                                    label={seo.ogImage ? 'Replace' : 'Upload'}
                                     accept="image/*"
                                     onUploaded={(url) => update({ ogImage: url })}
                                     onError={(msg) => setToast({ type: 'error', message: msg })}
                                 />
+                                {seo.ogImage && (
+                                    <button type="button" className="btn-remove" onClick={() => update({ ogImage: '' })}>
+                                        Clear
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </AdminSection>
@@ -282,13 +286,17 @@ export default function SeoPage() {
                             <label>Twitter image</label>
                             {seo.twitterImage && <img src={seo.twitterImage} alt="" className="admin-media-thumb" />}
                             <div className="admin-actions-bar">
-                                <input value={seo.twitterImage} onChange={(e) => update({ twitterImage: e.target.value })} placeholder="https://…" />
                                 <FileUploadButton
-                                    label="Upload"
+                                    label={seo.twitterImage ? 'Replace' : 'Upload'}
                                     accept="image/*"
                                     onUploaded={(url) => update({ twitterImage: url })}
                                     onError={(msg) => setToast({ type: 'error', message: msg })}
                                 />
+                                {seo.twitterImage && (
+                                    <button type="button" className="btn-remove" onClick={() => update({ twitterImage: '' })}>
+                                        Clear
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </AdminSection>
@@ -430,13 +438,17 @@ export default function SeoPage() {
                             <label>Logo</label>
                             {org.logo && <img src={org.logo} alt="" className="admin-media-thumb" />}
                             <div className="admin-actions-bar">
-                                <input value={org.logo} onChange={(e) => updateSchema('organization', { logo: e.target.value })} placeholder="https://…" />
                                 <FileUploadButton
-                                    label="Upload"
+                                    label={org.logo ? 'Replace' : 'Upload'}
                                     accept="image/*"
                                     onUploaded={(url) => updateSchema('organization', { logo: url })}
                                     onError={(msg) => setToast({ type: 'error', message: msg })}
                                 />
+                                {org.logo && (
+                                    <button type="button" className="btn-remove" onClick={() => updateSchema('organization', { logo: '' })}>
+                                        Clear
+                                    </button>
+                                )}
                             </div>
                         </div>
                         <div className="form-group">

@@ -78,15 +78,12 @@ export default function ContactUsPage() {
 
                     <div className="form-group">
                         <label>Image</label>
+                        {page.image && (
+                            <img src={page.image} alt="" className="admin-media-thumb" />
+                        )}
                         <div className="admin-actions-bar">
-                            {page.image && <img src={page.image} alt="" className="admin-item-thumb-sm" />}
-                            <input
-                                value={page.image}
-                                onChange={(e) => update({ image: e.target.value })}
-                                placeholder="https://… or upload"
-                            />
                             <FileUploadButton
-                                label="Upload"
+                                label={page.image ? 'Replace' : 'Upload'}
                                 accept="image/*"
                                 onUploaded={(url) => update({ image: url })}
                                 onError={(msg) => setToast({ type: 'error', message: msg })}

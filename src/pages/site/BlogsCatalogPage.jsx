@@ -202,13 +202,8 @@ export default function BlogsCatalogPage() {
                             </div>
                             {bgImage && <img src={bgImage} alt="" className="admin-media-thumb" />}
                             <div className="admin-actions-bar">
-                                <input
-                                    value={bgImage}
-                                    onChange={(e) => setBgImage(e.target.value)}
-                                    placeholder="https://… or upload"
-                                />
                                 <FileUploadButton
-                                    label="Upload"
+                                    label={bgImage ? 'Replace' : 'Upload'}
                                     accept="image/*"
                                     onUploaded={(url) => setBgImage(url)}
                                     onError={(msg) => setToast({ type: 'error', message: msg })}
@@ -306,13 +301,8 @@ export default function BlogsCatalogPage() {
                                                             <label>Thumbnail image</label>
                                                             {draft.image && <img src={draft.image} alt="" className="admin-media-thumb" />}
                                                             <div className="admin-actions-bar">
-                                                                <input
-                                                                    value={draft.image}
-                                                                    onChange={(e) => setDraft({ ...draft, image: e.target.value })}
-                                                                    placeholder="https://…"
-                                                                />
                                                                 <FileUploadButton
-                                                                    label="Upload"
+                                                                    label={draft.image ? 'Replace' : 'Upload'}
                                                                     accept="image/*"
                                                                     onUploaded={(url) => setDraft({ ...draft, image: url })}
                                                                     onError={(msg) => setToast({ type: 'error', message: msg })}
@@ -333,20 +323,15 @@ export default function BlogsCatalogPage() {
                                                             {draft.video && (
                                                                 <video
                                                                     src={draft.video}
-                                                                    className="admin-media-thumb"
+                                                                    className="admin-video-thumb"
                                                                     muted
                                                                     playsInline
                                                                     controls
                                                                 />
                                                             )}
                                                             <div className="admin-actions-bar">
-                                                                <input
-                                                                    value={draft.video || ''}
-                                                                    onChange={(e) => setDraft({ ...draft, video: e.target.value })}
-                                                                    placeholder="https://…"
-                                                                />
                                                                 <FileUploadButton
-                                                                    label="Upload"
+                                                                    label={draft.video ? 'Replace' : 'Upload'}
                                                                     accept="video/*"
                                                                     onUploaded={(url) => setDraft({ ...draft, video: url })}
                                                                     onError={(msg) => setToast({ type: 'error', message: msg })}

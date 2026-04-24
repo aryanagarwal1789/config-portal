@@ -77,18 +77,15 @@ export default function AboutUsPage() {
                         />
                     </div>
 
-                    <div className="form-row">
+                    <div className="form-row form-row--media-pair">
                         <div className="form-group">
                             <label>Banner image</label>
+                            {page.bannerImage && (
+                                <img src={page.bannerImage} alt="" className="admin-media-thumb" />
+                            )}
                             <div className="admin-actions-bar">
-                                {page.bannerImage && <img src={page.bannerImage} alt="" className="admin-item-thumb-sm" />}
-                                <input
-                                    value={page.bannerImage}
-                                    onChange={(e) => update({ bannerImage: e.target.value })}
-                                    placeholder="https://… or upload"
-                                />
                                 <FileUploadButton
-                                    label="Upload"
+                                    label={page.bannerImage ? 'Replace' : 'Upload'}
                                     accept="image/*"
                                     onUploaded={(url) => update({ bannerImage: url })}
                                     onError={(msg) => setToast({ type: 'error', message: msg })}
@@ -103,25 +100,19 @@ export default function AboutUsPage() {
 
                         <div className="form-group">
                             <label>Video</label>
-                            <div className="admin-actions-bar">
-                                {page.video && (
-                                    <video
-                                        key={page.video}
-                                        src={page.video}
-                                        controls
-                                        autoPlay={justUploadedVideo}
-                                        muted={justUploadedVideo}
-                                        className="admin-item-thumb-sm is-video"
-                                        style={{ width: 60, height: 44, objectFit: 'cover' }}
-                                    />
-                                )}
-                                <input
-                                    value={page.video}
-                                    onChange={(e) => { update({ video: e.target.value }); setJustUploadedVideo(false); }}
-                                    placeholder="https://… or upload"
+                            {page.video && (
+                                <video
+                                    key={page.video}
+                                    src={page.video}
+                                    controls
+                                    autoPlay={justUploadedVideo}
+                                    muted={justUploadedVideo}
+                                    className="admin-video-thumb"
                                 />
+                            )}
+                            <div className="admin-actions-bar">
                                 <FileUploadButton
-                                    label="Upload"
+                                    label={page.video ? 'Replace' : 'Upload'}
                                     accept="video/*"
                                     onUploaded={(url) => { update({ video: url }); setJustUploadedVideo(true); }}
                                     onError={(msg) => setToast({ type: 'error', message: msg })}
