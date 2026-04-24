@@ -23,6 +23,26 @@ export const reorderBlogs = (order) => api.put('/blogs/reorder', { order });
 export const updateBlog = (blogId, payload) => api.put(`/blogs/${blogId}`, payload);
 export const deleteBlog = (blogId) => api.delete(`/blogs/${blogId}`);
 
+// Blog categories — public-page filter tabs and admin-side dropdown both read
+// from this list; keep in sync with backend BLOG_CATEGORIES in siteConfig.ts.
+export const BLOG_CATEGORIES = [
+    'ai-powered-eb2b',
+    'ai-sales-agent',
+    'experience-center',
+    'expert-stories',
+    'nextgen-sfa',
+    'product-launch'
+];
+
+export const BLOG_CATEGORY_LABELS = {
+    'ai-powered-eb2b': 'AI Powered eB2B',
+    'ai-sales-agent': 'AI Sales Agent',
+    'experience-center': 'Experience Center',
+    'expert-stories': 'Expert Stories',
+    'nextgen-sfa': 'Nextgen SFA',
+    'product-launch': 'Product Launch'
+};
+
 // Blog page bg image (shown above the public blog page)
 export const getBlogsBgImage = () => api.get('/blogs/bg-image');
 export const updateBlogsBgImage = (bgImage) => api.put('/blogs/bg-image', { bgImage });

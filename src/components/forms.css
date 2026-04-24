@@ -176,6 +176,63 @@ input.section-title {
     transition: color var(--transition);
 }
 
+/* ── SEO validation indicator ──
+   Inline status message below a field. Uses a small dot + short text. */
+.seo-validation {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.4;
+    margin-top: 2px;
+}
+
+.seo-validation::before {
+    content: '';
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+}
+
+.seo-validation.is-red    { color: var(--text-danger); }
+.seo-validation.is-orange { color: #d97706; }
+.seo-validation.is-green  { color: var(--text-success); }
+.seo-validation.is-grey   { color: var(--text-muted); }
+
+/* Compact pill variant for schema section headers (rendered next to the
+   enable toggle). Uses a tinted background so the status is readable against
+   the tinted section header strip. */
+.seo-validation-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-weight: 600;
+    line-height: 1;
+    border: 1px solid currentColor;
+    white-space: nowrap;
+}
+
+.seo-validation-pill::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+}
+
+.seo-validation-pill.is-red    { color: var(--text-danger); background: var(--bg-danger-soft); }
+.seo-validation-pill.is-orange { color: #d97706;            background: rgba(217, 119, 6, 0.10); }
+.seo-validation-pill.is-green  { color: var(--text-success); background: var(--bg-success-soft); }
+.seo-validation-pill.is-grey   { color: var(--text-muted);   background: var(--bg-elevated); }
+
 /* Inside a form-group, shrink media previews so the upload row stays compact.
    A small inline preview is enough — the public page is the source of truth. */
 .form-group > .admin-media-thumb {

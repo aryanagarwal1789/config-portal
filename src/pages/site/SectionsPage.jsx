@@ -66,7 +66,8 @@ const newSection = (kind = 'card') => ({
     kind,
     cardinality: 'multiple',
     items: [],
-    order: 0
+    order: 0,
+    enabled: true
 });
 
 function Caret() {
@@ -103,13 +104,23 @@ function ImageItemEditor({ item, onChange, onReplaceUrl, onError }) {
                     )}
                 </div>
             </div>
-            <div className="admin-field">
-                <label>Alt text</label>
-                <input
-                    value={item.alt || ''}
-                    onChange={(e) => onChange({ alt: e.target.value })}
-                    placeholder="Describe the image"
-                />
+            <div className="admin-field-row">
+                <div className="admin-field">
+                    <label>Alt text</label>
+                    <input
+                        value={item.alt || ''}
+                        onChange={(e) => onChange({ alt: e.target.value })}
+                        placeholder="Describe the image"
+                    />
+                </div>
+                <div className="admin-field">
+                    <label>Caption</label>
+                    <input
+                        value={item.caption || ''}
+                        onChange={(e) => onChange({ caption: e.target.value })}
+                        placeholder="Shown under the image"
+                    />
+                </div>
             </div>
         </div>
     );
@@ -429,8 +440,23 @@ function SectionCard({
         ? hasItem ? '1 / 1' : '0 / 1'
         : `${section.items.length} ${kindLabel.toLowerCase()}${section.items.length === 1 ? '' : ''}`;
 
+    const enabled = section.enabled !== false;
+
     const actions = (
         <>
+            <label
+                className="admin-toggle"
+                title={enabled ? 'Disable section (hide from public page)' : 'Enable section'}
+            >
+                <input
+                    type="checkbox"
+                    checked={enabled}
+                    onChange={(e) => updateSection(sIdx, { enabled: e.target.checked })}
+                />
+                <span className="admin-toggle-track">
+                    <span className="admin-toggle-thumb" />
+                </span>
+            </label>
             <span className={`admin-kind-pill admin-kind-${section.kind}`}>{kindLabel}</span>
             <select
                 className="admin-section-select"
@@ -705,6 +731,7 @@ export default function SectionsPage() {
                 label: s.label,
                 kind: s.kind,
                 cardinality: s.cardinality,
+                enabled: s.enabled !== false,
                 order: i,
                 // For blog items, persist only the ref — the catalog owns title/image.
                 items: s.items.map((it, j) =>
@@ -731,7 +758,7 @@ export default function SectionsPage() {
                 title="Landing Sections"
                 subtitle="Every block that renders on the salescode.ai landing page — images, videos and cards — managed together. Drag sections to reorder them as they should appear on the page."
             >
-                <button className="btn-secondary" onClick={addSection}>+ Add section</button>
+                {/* <button className="btn-secondary" onClick={addSection}>+ Add section</button> */}
                 <button className="btn-primary" onClick={save} disabled={saving}>
                     {saving ? 'Saving…' : 'Save Changes'}
                 </button>
@@ -750,7 +777,10 @@ export default function SectionsPage() {
                 >
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                         {sections.map((section, sIdx) => (
-                            <div key={section.id}>
+                            <div
+                                key={section.id}
+                                style={{ opacity: section.enabled === false ? 0.55 : 1 }}
+                            >
                                 <SortableRow id={section.id}>
                                     {({ attributes, listeners }) => (
                                         <SectionCard

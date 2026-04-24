@@ -802,3 +802,113 @@
 .admin-kind-pill.admin-kind-image { color: #00a896; border-color: rgba(0, 198, 177, 0.34); background: rgba(0, 198, 177, 0.10); }
 .admin-kind-pill.admin-kind-video { color: #227c9d; border-color: rgba(34, 124, 157, 0.34);  background: rgba(34, 124, 157, 0.10); }
 .admin-kind-pill.admin-kind-card  { color: #0d6e5f; border-color: rgba(13, 110, 95, 0.34);   background: rgba(13, 110, 95, 0.10); }
+
+/* ── Category filter tabs (e.g. blog type filter) ── */
+.admin-filter-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    margin: 0 0 18px;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--bg-subtle, var(--bg-elevated));
+}
+
+.admin-filter-tabs-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-right: 4px;
+}
+
+.admin-filter-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+
+.admin-filter-tab:hover {
+    color: var(--text-primary);
+    border-color: var(--border-strong, var(--border));
+}
+
+.admin-filter-tab.is-active {
+    color: var(--accent-contrast, #fff);
+    background: var(--accent);
+    border-color: var(--accent);
+}
+
+.admin-filter-tab-count {
+    display: inline-flex;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.08);
+    font-size: 11px;
+    font-weight: 600;
+    align-items: center;
+    justify-content: center;
+}
+
+.admin-filter-tab.is-active .admin-filter-tab-count {
+    background: rgba(255, 255, 255, 0.22);
+}
+
+/* ── Blog category pill (shown on each blog card) ── */
+.admin-blog-type-pill {
+    display: inline-flex;
+    align-self: flex-start;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+    white-space: nowrap;
+    max-width: 100%;
+}
+
+/* Blog catalog cards — title + pill stack vertically, title clamped to 2
+   lines. Reserves a fixed title height so every card has the same footprint
+   regardless of how long the title is (full text available on hover). */
+.admin-item-card-head .admin-item-title:has(.admin-item-title-text) {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    flex: 1 1 200px;
+    min-width: 200px;
+}
+
+.admin-item-title-text {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    line-clamp: 2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.35;
+    min-height: calc(1.35em * 2);
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}

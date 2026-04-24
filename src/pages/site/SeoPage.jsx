@@ -68,6 +68,127 @@ function EnableToggle({ checked, onChange, label = 'Enable' }) {
     );
 }
 
+function SeoValidation({ result }) {
+    return <div className={`seo-validation is-${result.status}`}>{result.message}</div>;
+}
+
+function SeoValidationPill({ result }) {
+    return <span className={`seo-validation-pill is-${result.status}`}>{result.message}</span>;
+}
+
+const parseKeywords = (input) =>
+    input.split(',').map((k) => k.trim()).filter(Boolean);
+
+const parseSelectors = (input) =>
+    input.split('\n').map((s) => s.trim()).filter(Boolean);
+
+const isValidUrl = (v) => {
+    try { new URL(v); return true; } catch { return false; }
+};
+
+const validateMetaTitle = (v) => {
+    const len = (v || '').length;
+    if (!v) return { status: 'red', message: 'Required' };
+    if (len < 30) return { status: 'orange', message: `Too short (${len}/60) — aim for 50–60` };
+    if (len <= 60) return { status: 'green', message: `Good (${len}/60)` };
+    return { status: 'red', message: `Too long (${len}/60) — Google cuts off at 60` };
+};
+
+const validateMetaDescription = (v) => {
+    const len = (v || '').length;
+    if (!v) return { status: 'red', message: 'Required' };
+    if (len < 80) return { status: 'orange', message: `Too short (${len}/160) — aim for 120–160` };
+    if (len <= 160) return { status: 'green', message: `Good (${len}/160)` };
+    return { status: 'red', message: `Too long (${len}/160) — Google cuts off at 160` };
+};
+
+const validateKeywords = (arr) => {
+    const n = arr.length;
+    if (n === 0) return { status: 'orange', message: 'No keywords added' };
+    if (n < 3) return { status: 'orange', message: `Add more keywords (${n} added)` };
+    return { status: 'green', message: `Good (${n} keywords)` };
+};
+
+const validateOgTitle = (v) => {
+    const len = (v || '').length;
+    if (!v) return { status: 'orange', message: 'Defaults to metaTitle if blank' };
+    if (len > 60) return { status: 'red', message: `Too long (${len}/60)` };
+    return { status: 'green', message: `Good (${len}/60)` };
+};
+
+const validateOgDescription = (v) => {
+    const len = (v || '').length;
+    if (!v) return { status: 'orange', message: 'Defaults to metaDescription if blank' };
+    if (len > 160) return { status: 'red', message: `Too long (${len}/160)` };
+    return { status: 'green', message: `Good (${len}/160)` };
+};
+
+const validateOgImage = (v) => {
+    if (!v) return { status: 'red', message: 'Required — social previews will be blank' };
+    return { status: 'green', message: 'Good' };
+};
+
+const validateTwitterTitle = (v) => {
+    const len = (v || '').length;
+    if (!v) return { status: 'orange', message: 'Defaults to ogTitle if blank' };
+    if (len > 60) return { status: 'red', message: `Too long (${len}/60)` };
+    return { status: 'green', message: `Good (${len}/60)` };
+};
+
+const validateTwitterDescription = (v) => {
+    const len = (v || '').length;
+    if (!v) return { status: 'orange', message: 'Defaults to ogDescription if blank' };
+    if (len > 160) return { status: 'red', message: `Too long (${len}/160)` };
+    return { status: 'green', message: `Good (${len}/160)` };
+};
+
+const validateTwitterImage = (v) => {
+    if (!v) return { status: 'orange', message: 'Defaults to ogImage if blank' };
+    return { status: 'green', message: 'Good' };
+};
+
+const validateCanonicalUrl = (v) => {
+    if (!v) return { status: 'orange', message: 'Defaults to page URL if blank' };
+    if (!isValidUrl(v)) return { status: 'red', message: 'Invalid URL format' };
+    return { status: 'green', message: 'Good' };
+};
+
+const validateFocusKeyphrase = (v) => {
+    if (!v) return { status: 'orange', message: 'Helps with SEO analysis scoring' };
+    return { status: 'green', message: 'Good' };
+};
+
+const validateRobots = (v) => {
+    if (!v) return { status: 'orange', message: 'Defaults to index, follow' };
+    return { status: 'green', message: 'Good' };
+};
+
+const schemaStatus = (enabled, allFilled) => {
+    if (!enabled) return { status: 'grey', message: 'Not enabled' };
+    if (!allFilled) return { status: 'orange', message: 'Fill in schema fields' };
+    return { status: 'green', message: 'Good' };
+};
+
+const validateSoftwareApplication = (enabled, sa) => {
+    const filled = !!sa.name && !!sa.description && !!sa.url && !!sa.publisherName && !!sa.publisherUrl;
+    return schemaStatus(enabled, filled);
+};
+
+const validateFaqPage = (enabled, faq) => {
+    const filled = faq.items.length > 0 && faq.items.every((i) => i.question && i.answer);
+    return schemaStatus(enabled, filled);
+};
+
+const validateOrganization = (enabled, org) => {
+    const filled = !!org.name && !!org.url && !!org.logo && !!org.description;
+    return schemaStatus(enabled, filled);
+};
+
+const validateSpeakable = (enabled, speak, selectors) => {
+    const filled = !!speak.url && selectors.length > 0;
+    return schemaStatus(enabled, filled);
+};
+
 export default function SeoPage() {
     const { pageKey } = useParams();
     const pageMeta = SEO_PAGES.find((p) => p.key === pageKey);
@@ -201,6 +322,14 @@ export default function SeoPage() {
     const org = seo.schemas.organization;
     const speak = seo.schemas.speakable;
 
+    const parsedKeywords = parseKeywords(keywordsInput);
+    const parsedSelectors = parseSelectors(speakableSelectorsInput);
+
+    const saStatus = validateSoftwareApplication(seo.schemasEnabled.softwareApplication, sa);
+    const faqStatus = validateFaqPage(seo.schemasEnabled.faqPage, faq);
+    const orgStatus = validateOrganization(seo.schemasEnabled.organization, org);
+    const speakStatus = validateSpeakable(seo.schemasEnabled.speakable, speak, parsedSelectors);
+
     return (
         <>
             <AdminPageHeader
@@ -220,28 +349,34 @@ export default function SeoPage() {
                         <div className="form-group">
                             <label>Meta title</label>
                             <input value={seo.metaTitle} onChange={(e) => update({ metaTitle: e.target.value })} placeholder="Page title for search engines" />
+                            <SeoValidation result={validateMetaTitle(seo.metaTitle)} />
                         </div>
                         <div className="form-group">
                             <label>Meta description</label>
                             <textarea value={seo.metaDescription} onChange={(e) => update({ metaDescription: e.target.value })} placeholder="Summary shown in search results (150–160 chars)" />
+                            <SeoValidation result={validateMetaDescription(seo.metaDescription)} />
                         </div>
                         <div className="form-row">
                             <div className="form-group">
                                 <label>Focus keyphrase</label>
                                 <input value={seo.focusKeyphrase} onChange={(e) => update({ focusKeyphrase: e.target.value })} placeholder="Primary keyword for this page" />
+                                <SeoValidation result={validateFocusKeyphrase(seo.focusKeyphrase)} />
                             </div>
                             <div className="form-group">
                                 <label>Canonical URL</label>
                                 <input value={seo.canonicalUrl} onChange={(e) => update({ canonicalUrl: e.target.value })} placeholder="https://salescode.ai/..." />
+                                <SeoValidation result={validateCanonicalUrl(seo.canonicalUrl)} />
                             </div>
                         </div>
                         <div className="form-group">
                             <label>Keywords <span className="hint">comma-separated</span></label>
                             <input value={keywordsInput} onChange={(e) => setKeywordsInput(e.target.value)} placeholder="sales, ai, cpg, sfa" />
+                            <SeoValidation result={validateKeywords(parsedKeywords)} />
                         </div>
                         <div className="form-group">
                             <label>Robots</label>
                             <input value={seo.robots} onChange={(e) => update({ robots: e.target.value })} placeholder="index, follow" />
+                            <SeoValidation result={validateRobots(seo.robots)} />
                         </div>
                     </AdminSection>
 
@@ -249,10 +384,12 @@ export default function SeoPage() {
                         <div className="form-group">
                             <label>OG title</label>
                             <input value={seo.ogTitle} onChange={(e) => update({ ogTitle: e.target.value })} placeholder="Shown when the page is shared" />
+                            <SeoValidation result={validateOgTitle(seo.ogTitle)} />
                         </div>
                         <div className="form-group">
                             <label>OG description</label>
                             <textarea value={seo.ogDescription} onChange={(e) => update({ ogDescription: e.target.value })} placeholder="Description shown when shared" />
+                            <SeoValidation result={validateOgDescription(seo.ogDescription)} />
                         </div>
                         <div className="form-group">
                             <label>OG image</label>
@@ -270,6 +407,7 @@ export default function SeoPage() {
                                     </button>
                                 )}
                             </div>
+                            <SeoValidation result={validateOgImage(seo.ogImage)} />
                         </div>
                     </AdminSection>
 
@@ -277,10 +415,12 @@ export default function SeoPage() {
                         <div className="form-group">
                             <label>Twitter title</label>
                             <input value={seo.twitterTitle} onChange={(e) => update({ twitterTitle: e.target.value })} />
+                            <SeoValidation result={validateTwitterTitle(seo.twitterTitle)} />
                         </div>
                         <div className="form-group">
                             <label>Twitter description</label>
                             <textarea value={seo.twitterDescription} onChange={(e) => update({ twitterDescription: e.target.value })} />
+                            <SeoValidation result={validateTwitterDescription(seo.twitterDescription)} />
                         </div>
                         <div className="form-group">
                             <label>Twitter image</label>
@@ -298,6 +438,7 @@ export default function SeoPage() {
                                     </button>
                                 )}
                             </div>
+                            <SeoValidation result={validateTwitterImage(seo.twitterImage)} />
                         </div>
                     </AdminSection>
 
@@ -307,10 +448,13 @@ export default function SeoPage() {
                         defaultOpen={false}
                         description="JSON-LD structured data so Google can show this page as a software product with price and ratings."
                         actions={
-                            <EnableToggle
-                                checked={seo.schemasEnabled.softwareApplication}
-                                onChange={(v) => toggleSchema('softwareApplication', v)}
-                            />
+                            <>
+                                <SeoValidationPill result={saStatus} />
+                                <EnableToggle
+                                    checked={seo.schemasEnabled.softwareApplication}
+                                    onChange={(v) => toggleSchema('softwareApplication', v)}
+                                />
+                            </>
                         }
                     >
                         <div className="form-row">
@@ -369,10 +513,13 @@ export default function SeoPage() {
                         defaultOpen={false}
                         description="Questions and answers that may appear as rich FAQ results in Google."
                         actions={
-                            <EnableToggle
-                                checked={seo.schemasEnabled.faqPage}
-                                onChange={(v) => toggleSchema('faqPage', v)}
-                            />
+                            <>
+                                <SeoValidationPill result={faqStatus} />
+                                <EnableToggle
+                                    checked={seo.schemasEnabled.faqPage}
+                                    onChange={(v) => toggleSchema('faqPage', v)}
+                                />
+                            </>
                         }
                     >
                         <div className="admin-list">
@@ -418,10 +565,13 @@ export default function SeoPage() {
                         defaultOpen={false}
                         description="Company-level info used by Google's Knowledge Graph (name, logo, social profiles)."
                         actions={
-                            <EnableToggle
-                                checked={seo.schemasEnabled.organization}
-                                onChange={(v) => toggleSchema('organization', v)}
-                            />
+                            <>
+                                <SeoValidationPill result={orgStatus} />
+                                <EnableToggle
+                                    checked={seo.schemasEnabled.organization}
+                                    onChange={(v) => toggleSchema('organization', v)}
+                                />
+                            </>
                         }
                     >
                         <div className="form-row">
@@ -487,10 +637,13 @@ export default function SeoPage() {
                         defaultOpen={false}
                         description="Tells voice assistants which parts of the page are safe to read aloud."
                         actions={
-                            <EnableToggle
-                                checked={seo.schemasEnabled.speakable}
-                                onChange={(v) => toggleSchema('speakable', v)}
-                            />
+                            <>
+                                <SeoValidationPill result={speakStatus} />
+                                <EnableToggle
+                                    checked={seo.schemasEnabled.speakable}
+                                    onChange={(v) => toggleSchema('speakable', v)}
+                                />
+                            </>
                         }
                     >
                         <div className="form-group">
