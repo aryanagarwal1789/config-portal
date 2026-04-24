@@ -628,7 +628,9 @@ export default function SectionsPage() {
     };
 
     const openBlogPicker = async (sIdx) => {
-        await loadAvailableBlogs();
+        if (availableBlogs.length === 0) {
+            await loadAvailableBlogs();
+        }
         setBlogPickerIdx(sIdx);
     };
 
