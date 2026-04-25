@@ -263,8 +263,21 @@ export default function ProductDetailPage() {
                                                                 <input value={item.label} onChange={(e) => update(idx, { label: e.target.value })} placeholder="e.g. Overview" />
                                                             </div>
                                                             <div className="admin-field">
-                                                                <label>Icon <span className="hint">name or URL (optional)</span></label>
-                                                                <input value={item.icon} onChange={(e) => update(idx, { icon: e.target.value })} placeholder="e.g. dashboard" />
+                                                                <label>Icon <span className="hint">image (optional)</span></label>
+                                                                <div className="icon-upload-row">
+                                                                    {item.icon && (
+                                                                        <img src={item.icon} alt="" className="icon-upload-preview" />
+                                                                    )}
+                                                                    <FileUploadButton
+                                                                        label={item.icon ? 'Replace' : 'Upload'}
+                                                                        accept="image/*"
+                                                                        onUploaded={(url) => update(idx, { icon: url })}
+                                                                        onError={(msg) => setToast({ type: 'error', message: msg })}
+                                                                    />
+                                                                    {item.icon && (
+                                                                        <button type="button" className="btn-remove" onClick={() => update(idx, { icon: '' })}>Clear</button>
+                                                                    )}
+                                                                </div>
                                                             </div>
                                                         </div>
 

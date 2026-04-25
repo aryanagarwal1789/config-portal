@@ -246,6 +246,8 @@ function BlogGrid({
     );
 }
 
+const PAGE_SIZE = 12;
+
 export default function BlogsCatalogPage() {
     const [blogs, setBlogs] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -262,6 +264,7 @@ export default function BlogsCatalogPage() {
     // admin-only — reorder (drag) is disabled while a filter is active to
     // avoid ambiguous ordering between the filtered view and full list.
     const [activeType, setActiveType] = useState('all');
+    const [currentPage, setCurrentPage] = useState(1);
 
     const load = async () => {
         try {
@@ -411,6 +414,24 @@ export default function BlogsCatalogPage() {
         [blogs, activeType]
     );
 
+    const totalPages = Math.max(1, Math.ceil(visibleBlogs.length / PAGE_SIZE));
+    const safePage = Math.min(currentPage, totalPages);
+    const pageStart = (safePage - 1) * PAGE_SIZE;
+    const pagedBlogs = visibleBlogs.slice(pageStart, pageStart + PAGE_SIZE);
+
+    // Reset to page 1 whenever the filter changes
+    useEffect(() => { setCurrentPage(1); }, [activeType]);
+
+    const handlePagedReorder = (newPageOrder) => {
+        // Reconstruct the full list, replacing only the current page's slice
+        const fullReordered = [
+            ...blogs.slice(0, pageStart),
+            ...newPageOrder,
+            ...blogs.slice(pageStart + PAGE_SIZE)
+        ];
+        handleReorder(fullReordered);
+    };
+
     return (
         <>
             <AdminPageHeader
@@ -525,21 +546,56 @@ export default function BlogsCatalogPage() {
                     </button>
                 </div>
             ) : (
-                <BlogGrid
-                    canDrag={activeType === 'all'}
-                    visibleBlogs={visibleBlogs}
-                    editingId={editingId}
-                    draft={draft}
-                    setDraft={setDraft}
-                    savingId={savingId}
-                    onReorder={handleReorder}
-                    startEdit={startEdit}
-                    cancelEdit={cancelEdit}
-                    saveEdit={saveEdit}
-                    toggleEnabled={toggleEnabled}
-                    handleDelete={handleDelete}
-                    onToastError={(msg) => setToast({ type: 'error', message: msg })}
-                />
+                <>
+                    <BlogGrid
+                        canDrag={activeType === 'all'}
+                        visibleBlogs={pagedBlogs}
+                        editingId={editingId}
+                        draft={draft}
+                        setDraft={setDraft}
+                        savingId={savingId}
+                        onReorder={handlePagedReorder}
+                        startEdit={startEdit}
+                        cancelEdit={cancelEdit}
+                        saveEdit={saveEdit}
+                        toggleEnabled={toggleEnabled}
+                        handleDelete={handleDelete}
+                        onToastError={(msg) => setToast({ type: 'error', message: msg })}
+                    />
+                    {totalPages > 1 && (
+                        <div className="admin-pagination">
+                            <span className="admin-pagination-info">
+                                {pageStart + 1}–{Math.min(pageStart + PAGE_SIZE, visibleBlogs.length)} of {visibleBlogs.length}
+                            </span>
+                            <button
+                                type="button"
+                                className="admin-pagination-btn"
+                                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                                disabled={safePage === 1}
+                            >
+                                ‹ Prev
+                            </button>
+                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pg) => (
+                                <button
+                                    key={pg}
+                                    type="button"
+                                    className={`admin-pagination-btn ${safePage === pg ? 'is-active' : ''}`}
+                                    onClick={() => setCurrentPage(pg)}
+                                >
+                                    {pg}
+                                </button>
+                            ))}
+                            <button
+                                type="button"
+                                className="admin-pagination-btn"
+                                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                                disabled={safePage === totalPages}
+                            >
+                                Next ›
+                            </button>
+                        </div>
+                    )}
+                </>
             )}
 
             <Toast

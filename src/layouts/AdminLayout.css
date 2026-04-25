@@ -6,6 +6,11 @@
     transition: grid-template-columns var(--transition);
 }
 
+/* Cancel app-main's padding-bottom so the page doesn't over-scroll */
+.app-main:has(.admin-layout) {
+    padding-bottom: 0;
+}
+
 .admin-layout.sidebar-collapsed {
     grid-template-columns: 72px 1fr;
 }
@@ -49,12 +54,39 @@
     border-bottom: 1px solid rgba(0, 198, 177, 0.14);
 }
 
+.sidebar-collapsed .admin-sidebar-header {
+    justify-content: space-between;
+    padding: 20px 12px 14px;
+}
+
+.admin-sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.admin-sidebar-logo {
+    height: 28px;
+    width: auto;
+    max-width: 130px;
+    object-fit: contain;
+    object-position: left center;
+    flex-shrink: 0;
+}
+
+.sidebar-collapsed .admin-sidebar-logo {
+    height: 24px;
+    max-width: 36px;
+    object-position: center center;
+}
+
 [data-theme='dark'] .admin-sidebar-header {
     border-bottom-color: rgba(45, 224, 204, 0.16);
 }
 
 .admin-sidebar-title {
-    font-size: 15px;
+    font-size: 18px;
     font-weight: 800;
     letter-spacing: -0.02em;
     background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent) 60%, var(--accent-secondary) 100%);

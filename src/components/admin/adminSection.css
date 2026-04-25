@@ -137,7 +137,7 @@
 
 .admin-section + .admin-section,
 .config-form > .admin-section + .admin-section {
-    margin-top: 22px;
+    margin-top: 6px;
 }
 
 .admin-section.is-collapsed {

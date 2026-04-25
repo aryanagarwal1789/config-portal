@@ -777,7 +777,7 @@ export default function SectionsPage() {
                     getId={(s) => s.id}
                     onReorder={reorderSections}
                 >
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                         {sections.map((section, sIdx) => (
                             <div
                                 key={section.id}

@@ -341,6 +341,23 @@
     letter-spacing: 0.02em;
 }
 
+.icon-upload-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.icon-upload-preview {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+    flex-shrink: 0;
+}
+
 .product-details-media-actions {
     display: flex;
     gap: 8px;
@@ -911,4 +928,55 @@
     min-height: calc(1.35em * 2);
     word-break: break-word;
     overflow-wrap: anywhere;
+}
+
+/* ── Pagination ── */
+.admin-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin: 24px 0 8px;
+    flex-wrap: wrap;
+}
+
+.admin-pagination-info {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-right: 8px;
+}
+
+.admin-pagination-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 34px;
+    height: 34px;
+    padding: 0 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+
+.admin-pagination-btn:hover:not(:disabled) {
+    color: var(--text-primary);
+    border-color: var(--border-strong, var(--border));
+    background: var(--bg-hover, var(--bg-elevated));
+}
+
+.admin-pagination-btn.is-active {
+    color: var(--accent-contrast, #fff);
+    background: var(--accent);
+    border-color: var(--accent);
+    cursor: default;
+}
+
+.admin-pagination-btn:disabled {
+    opacity: 0.38;
+    cursor: default;
 }

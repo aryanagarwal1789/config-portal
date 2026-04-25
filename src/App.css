@@ -41,9 +41,9 @@
 }
 
 .app-topbar-logo {
-    color: #d7fffb;
-    display: flex;
-    align-items: center;
+    height: 60px;
+    width: auto;
+    object-fit: contain;
 }
 
 .app-topbar-brand {

@@ -1,5 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import { useState } from 'react';
+import salescodeLogo from '../assets/salescode-logo.png';
 import './AdminLayout.css';
 
 function Icon({ name }) {
@@ -36,8 +37,10 @@ function Icon({ name }) {
             return <svg {...common}><rect x="3" y="3" width="18" height="7" rx="1.5"/><rect x="3" y="13" width="18" height="7" rx="1.5"/></svg>;
         case 'chevron':
             return <svg {...common}><path d="m9 18 6-6-6-6"/></svg>;
-        case 'menu':
-            return <svg {...common}><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>;
+        case 'panel-collapse':
+            return <svg {...common}><path d="m11 17-5-5 5-5"/><path d="m17 17-5-5 5-5"/></svg>;
+        case 'panel-expand':
+            return <svg {...common}><path d="m7 17 5-5-5-5"/><path d="m13 17 5-5-5-5"/></svg>;
         default:
             return null;
     }
@@ -110,14 +113,14 @@ export default function AdminLayout() {
         <div className={`admin-layout ${collapsed ? 'sidebar-collapsed' : ''}`}>
             <aside className="admin-sidebar">
                 <div className="admin-sidebar-header">
-                    {!collapsed && <span className="admin-sidebar-title">Salescode.ai</span>}
+                    {!collapsed && <span className="admin-sidebar-title">Config Portal</span>}
                     <button
                         className="admin-sidebar-toggle"
                         onClick={() => setCollapsed((v) => !v)}
                         title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
                         aria-label="Toggle sidebar"
                     >
-                        <Icon name="menu" />
+                        <Icon name={collapsed ? 'panel-expand' : 'panel-collapse'} />
                     </button>
                 </div>
                 <nav className="admin-sidebar-nav">

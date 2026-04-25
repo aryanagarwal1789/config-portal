@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import salescodeLogo from './assets/salescode-logo.png';
 import Home from './pages/Home';
 import ExperiencePortal from './pages/ExperiencePortal';
 import ProductConfig from './pages/ProductConfig';
@@ -60,14 +61,8 @@ export default function App() {
                 <header className="app-topbar">
                     <div className="app-topbar-inner">
                         <div className="app-topbar-left">
-                            <span className="app-topbar-logo">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <circle cx="12" cy="12" r="3"/>
-                                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/>
-                                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07M8.46 8.46a5 5 0 0 0 0 7.07"/>
-                                </svg>
-                            </span>
-                            <span className="app-topbar-brand">Config Portal</span>
+                            <img src={salescodeLogo} alt="Salescode" className="app-topbar-logo" />
+                            {/* <span className="app-topbar-brand">Config Portal</span> */}
                         </div>
                         <div className="app-topbar-right">
                             <button
