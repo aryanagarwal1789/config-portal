@@ -661,9 +661,6 @@ export default function SeoPage() {
                         </div>
                     </AdminSection>
 
-                    <button type="submit" className="btn-save" disabled={saving}>
-                        {saving ? 'Saving…' : 'Save Changes'}
-                    </button>
                 </form>
             )}
 
