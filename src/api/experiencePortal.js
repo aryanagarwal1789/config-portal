@@ -1,6 +1,7 @@
 import axios from 'axios';
+import { ApiConstants } from '../utils/constants';
 
-const api = axios.create({ baseURL: '/api/experiencePortal' });
+const api = axios.create({ baseURL: `${ApiConstants.BaseURL}/experiencePortal` });
 
 export const getPublicConfig = () => api.get('/publicConfig');
 export const updatePublicConfig = (publicConfig) => api.put('/publicConfig', { publicConfig });

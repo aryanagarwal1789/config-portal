@@ -1,6 +1,7 @@
 import axios from 'axios';
+import { ApiConstants } from '../utils/constants';
 
-const api = axios.create({ baseURL: '/api/portal' });
+const api = axios.create({ baseURL: `${ApiConstants.BaseURL}/portal` });
 
 export const getPortalConfig = (portalId) => api.get(`/${portalId}/config`);
 

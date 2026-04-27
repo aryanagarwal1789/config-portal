@@ -1,6 +1,7 @@
 import axios from 'axios';
+import { ApiConstants } from '../utils/constants';
 
-const api = axios.create({ baseURL: '/api/site' });
+const api = axios.create({ baseURL: `${ApiConstants.BaseURL}/site` });
 
 // Content — single {title, description, image}
 export const getContent = () => api.get('/content');

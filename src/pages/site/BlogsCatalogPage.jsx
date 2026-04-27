@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
     listBlogs,
     createBlog,
@@ -246,6 +247,116 @@ function BlogGrid({
     );
 }
 
+const EMPTY_BLOG_DRAFT = { title: '', description: '', image: '', video: '', link: '', type: '', enabled: true };
+
+function AddBlogModal({ defaultType, onSave, onClose, onToastError }) {
+    const [draft, setDraft] = useState({ ...EMPTY_BLOG_DRAFT, type: defaultType === 'all' ? '' : defaultType });
+    const [saving, setSaving] = useState(false);
+
+    const handleSubmit = async () => {
+        setSaving(true);
+        try {
+            await onSave(draft);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    return createPortal(
+        <div className="admin-modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+            <div className="admin-modal" role="dialog" aria-modal="true" aria-labelledby="add-blog-modal-title">
+                <div className="admin-modal-header">
+                    <h2 id="add-blog-modal-title">Add blog</h2>
+                    <button type="button" className="admin-modal-close" onClick={onClose} aria-label="Close">×</button>
+                </div>
+                <div className="admin-modal-body">
+                    <div className="admin-field-row">
+                        <div className="admin-field">
+                            <label>Thumbnail image</label>
+                            {draft.image && <img src={draft.image} alt="" className="admin-media-thumb" />}
+                            <div className="admin-actions-bar">
+                                <FileUploadButton
+                                    label={draft.image ? 'Replace' : 'Upload'}
+                                    accept="image/*"
+                                    onUploaded={(url) => setDraft((d) => ({ ...d, image: url }))}
+                                    onError={onToastError}
+                                />
+                                {draft.image && (
+                                    <button type="button" className="btn-remove" onClick={() => setDraft((d) => ({ ...d, image: '' }))}>
+                                        Clear
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                        <div className="admin-field">
+                            <label>Video</label>
+                            {draft.video && (
+                                <video src={draft.video} className="admin-video-thumb" muted playsInline controls />
+                            )}
+                            <div className="admin-actions-bar">
+                                <FileUploadButton
+                                    label={draft.video ? 'Replace' : 'Upload'}
+                                    accept="video/*"
+                                    onUploaded={(url) => setDraft((d) => ({ ...d, video: url }))}
+                                    onError={onToastError}
+                                />
+                                {draft.video && (
+                                    <button type="button" className="btn-remove" onClick={() => setDraft((d) => ({ ...d, video: '' }))}>
+                                        Clear
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="admin-field">
+                        <label>Title</label>
+                        <input
+                            value={draft.title}
+                            onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))}
+                            placeholder="Blog title"
+                            autoFocus
+                        />
+                    </div>
+                    <div className="admin-field">
+                        <label>Description</label>
+                        <textarea
+                            value={draft.description}
+                            onChange={(e) => setDraft((d) => ({ ...d, description: e.target.value }))}
+                            placeholder="Short summary"
+                        />
+                    </div>
+                    <div className="admin-field-row">
+                        <div className="admin-field">
+                            <label>Type</label>
+                            <select value={draft.type || ''} onChange={(e) => setDraft((d) => ({ ...d, type: e.target.value }))}>
+                                <option value="">— Uncategorized —</option>
+                                {BLOG_CATEGORIES.map((key) => (
+                                    <option key={key} value={key}>{BLOG_CATEGORY_LABELS[key]}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="admin-field">
+                            <label>Link</label>
+                            <input
+                                value={draft.link}
+                                onChange={(e) => setDraft((d) => ({ ...d, link: e.target.value }))}
+                                placeholder="/blog/my-post"
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div className="admin-modal-footer">
+                    <button type="button" className="btn-secondary" onClick={onClose} disabled={saving}>Cancel</button>
+                    <button type="button" className="btn-primary" onClick={handleSubmit} disabled={saving}>
+                        {saving ? 'Adding…' : 'Add blog'}
+                    </button>
+                </div>
+            </div>
+        </div>,
+        document.body
+    );
+}
+
 const PAGE_SIZE = 12;
 
 export default function BlogsCatalogPage() {
@@ -255,6 +366,7 @@ export default function BlogsCatalogPage() {
     const [draft, setDraft] = useState(null);
     const [savingId, setSavingId] = useState(null);
     const [creating, setCreating] = useState(false);
+    const [showAddModal, setShowAddModal] = useState(false);
     const [toast, setToast] = useState(null);
     const [bgImage, setBgImage] = useState('');
     const [savedBgImage, setSavedBgImage] = useState('');
@@ -353,22 +465,29 @@ export default function BlogsCatalogPage() {
         }
     };
 
-    const handleAdd = async () => {
+    const handleAdd = () => setShowAddModal(true);
+
+    const handleModalSave = async (draft) => {
         setCreating(true);
         try {
             const { data } = await createBlog({
-                title: '',
-                description: '',
-                image: '',
-                video: '',
-                link: '',
-                // If a filter is active, pre-select that type for the new blog —
-                // matches the filter tab the admin is currently viewing.
-                type: activeType === 'all' ? '' : activeType,
-                enabled: true
+                title: draft.title,
+                description: draft.description,
+                image: draft.image,
+                video: draft.video,
+                link: draft.link,
+                type: draft.type || '',
+                enabled: draft.enabled
             });
-            setBlogs((prev) => [...prev, data.blog]);
-            startEdit(data.blog);
+            const newBlogs = [...blogs, data.blog];
+            setBlogs(newBlogs);
+            setShowAddModal(false);
+            // Navigate to the last page so the user can see the newly added blog
+            const newTotal = Math.max(1, Math.ceil(
+                (activeType === 'all' ? newBlogs : newBlogs.filter((b) => b.type === activeType)).length / PAGE_SIZE
+            ));
+            setCurrentPage(newTotal);
+            setToast({ type: 'success', message: 'Blog added' });
         } catch {
             setToast({ type: 'error', message: 'Could not add blog' });
         } finally {
@@ -438,7 +557,7 @@ export default function BlogsCatalogPage() {
                 title="Blogs"
                 subtitle="All blog posts for salescode.ai. Any blog added here can be featured on the landing page via Landing → Blogs."
             >
-                <button className="btn-primary" onClick={handleAdd} disabled={creating}>
+                <button className="btn-primary" onClick={handleAdd} disabled={creating || showAddModal}>
                     {creating ? 'Adding…' : '+ Add blog'}
                 </button>
             </AdminPageHeader>
@@ -596,6 +715,15 @@ export default function BlogsCatalogPage() {
                         </div>
                     )}
                 </>
+            )}
+
+            {showAddModal && (
+                <AddBlogModal
+                    defaultType={activeType}
+                    onSave={handleModalSave}
+                    onClose={() => setShowAddModal(false)}
+                    onToastError={(msg) => setToast({ type: 'error', message: msg })}
+                />
             )}
 
             <Toast

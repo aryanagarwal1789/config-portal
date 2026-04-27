@@ -80,6 +80,7 @@ export default function AdminSection({
                 <div
                     className="admin-section-heading"
                     onClick={titleInput ? stop : undefined}
+                    onKeyDown={titleInput ? stop : undefined}
                 >
                     {titleInput || <h3 className="admin-section-title">{title}</h3>}
                 </div>

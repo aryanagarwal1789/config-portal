@@ -3,12 +3,11 @@ import { getContent, updateContent } from '../../api/site';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import AdminSection from '../../components/admin/AdminSection';
 import Toast from '../../components/admin/Toast';
-import FileUploadButton from '../../components/admin/FileUploadButton';
 import '../../components/admin/adminShared.css';
 import '../../components/forms.css';
 
 export default function ContentPage() {
-    const [content, setContent] = useState({ title: '', description: '', image: '' });
+    const [content, setContent] = useState({ title: '', description: '' });
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [toast, setToast] = useState(null);
@@ -19,8 +18,7 @@ export default function ContentPage() {
                 const { data } = await getContent();
                 setContent({
                     title: data.content?.title || '',
-                    description: data.content?.description || '',
-                    image: data.content?.image || ''
+                    description: data.content?.description || ''
                 });
             } catch {
                 setToast({ type: 'error', message: 'Failed to load content' });
@@ -50,7 +48,7 @@ export default function ContentPage() {
         <>
             <AdminPageHeader
                 title="Landing Page Content"
-                subtitle="The headline, description, and hero image shown at the top of the salescode.ai landing page."
+                subtitle="The headline and description shown at the top of the salescode.ai landing page."
             >
                 <button className="btn-primary" onClick={save} disabled={saving}>
                     {saving ? 'Saving…' : 'Save Changes'}
@@ -78,27 +76,6 @@ export default function ContentPage() {
                         />
                     </div>
 
-                    <div className="form-group">
-                        <label>Image</label>
-                        {content.image && <img src={content.image} alt="" className="admin-media-thumb admin-media-thumb--hero" />}
-                        <div className="admin-actions-bar">
-                            <FileUploadButton
-                                label={content.image ? 'Replace' : 'Upload'}
-                                accept="image/*"
-                                onUploaded={(url) => update({ image: url })}
-                                onError={(msg) => setToast({ type: 'error', message: msg })}
-                            />
-                            {content.image && (
-                                <button
-                                    type="button"
-                                    className="btn-remove"
-                                    onClick={() => update({ image: '' })}
-                                >
-                                    Clear
-                                </button>
-                            )}
-                        </div>
-                    </div>
                 </AdminSection>
 
                 <button type="submit" className="btn-save" disabled={saving}>

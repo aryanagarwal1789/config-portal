@@ -457,59 +457,49 @@ function SectionCard({
                     <span className="admin-toggle-thumb" />
                 </span>
             </label>
-            <span className={`admin-kind-pill admin-kind-${section.kind}`}>{kindLabel}</span>
-            <select
-                className="admin-section-select"
-                value={section.kind}
-                onChange={(e) => {
-                    if (!window.confirm('Changing kind will clear the items in this section. Continue?')) return;
-                    updateSection(sIdx, { kind: e.target.value, items: [] });
-                }}
-                title="Section kind"
-            >
-                <option value="image">Image</option>
-                <option value="video">Video</option>
-                <option value="card">Card</option>
-                <option value="blog">Blog</option>
-            </select>
-            {section.kind !== 'blog' && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, ...(!enabled ? { pointerEvents: 'none' } : {}) }}>
+                <span className={`admin-kind-pill admin-kind-${section.kind}`}>{kindLabel}</span>
                 <select
                     className="admin-section-select"
-                    value={section.cardinality}
-                    onChange={(e) => {
-                        const cardinality = e.target.value;
-                        updateSection(sIdx, {
-                            cardinality,
-                            items:
-                                cardinality === 'single' && section.items.length > 1
-                                    ? section.items.slice(0, 1)
-                                    : section.items
-                        });
-                    }}
-                    title="Cardinality"
+                    value={section.kind}
+                    disabled
+                    title="Section kind"
                 >
-                    <option value="multiple">Multiple</option>
-                    <option value="single">Single</option>
+                    <option value="image">Image</option>
+                    <option value="video">Video</option>
+                    <option value="card">Card</option>
+                    <option value="blog">Blog</option>
                 </select>
-            )}
-            {!isSingle && section.kind === 'card' && (
-                <button type="button" className="btn-secondary" onClick={() => addItem(sIdx)}>+ Add card</button>
-            )}
-            {!isSingle && section.kind === 'blog' && (
-                <button type="button" className="btn-secondary" onClick={() => openBlogPicker(sIdx)}>+ Add blog</button>
-            )}
-            {!isSingle && (section.kind === 'image' || section.kind === 'video') && (
-                <FileUploadButton
-                    label={`+ Upload ${section.kind}`}
-                    className="btn-secondary"
-                    accept={uploadAccept}
-                    onUploaded={handleUpload}
-                    onError={onError}
-                />
-            )}
-            <button type="button" className="btn-remove" onClick={() => removeSection(sIdx)}>
-                Remove section
-            </button>
+                {section.kind !== 'blog' && (
+                    <select
+                        className="admin-section-select"
+                        value={section.cardinality}
+                        disabled
+                        title="Cardinality"
+                    >
+                        <option value="multiple">Multiple</option>
+                        <option value="single">Single</option>
+                    </select>
+                )}
+                {!isSingle && section.kind === 'card' && (
+                    <button type="button" className="btn-secondary" onClick={() => addItem(sIdx)}>+ Add card</button>
+                )}
+                {!isSingle && section.kind === 'blog' && (
+                    <button type="button" className="btn-secondary" onClick={() => openBlogPicker(sIdx)}>+ Add blog</button>
+                )}
+                {!isSingle && (section.kind === 'image' || section.kind === 'video') && (
+                    <FileUploadButton
+                        label={`+ Upload ${section.kind}`}
+                        className="btn-secondary"
+                        accept={uploadAccept}
+                        onUploaded={handleUpload}
+                        onError={onError}
+                    />
+                )}
+                <button type="button" className="btn-remove" onClick={() => removeSection(sIdx)}>
+                    Remove section
+                </button>
+            </div>
         </>
     );
 
@@ -537,6 +527,7 @@ function SectionCard({
             actions={actions}
             defaultOpen={false}
         >
+            <div style={!enabled ? { pointerEvents: 'none' } : {}}>
             {isSingle ? (
                 hasItem ? (
                     renderItem(section.items[0], 0, null)
@@ -598,6 +589,7 @@ function SectionCard({
                     </div>
                 </SortableList>
             )}
+            </div>
         </AdminSection>
     );
 }
