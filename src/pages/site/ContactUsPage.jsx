@@ -96,9 +96,6 @@ export default function ContactUsPage() {
                         </div>
                     </div>
 
-                    <button type="submit" className="btn-save" disabled={saving}>
-                        {saving ? 'Saving…' : 'Save Changes'}
-                    </button>
                 </form>
             )}
 

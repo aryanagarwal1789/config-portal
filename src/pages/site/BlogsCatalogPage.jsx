@@ -367,6 +367,7 @@ export default function BlogsCatalogPage() {
     const [savingId, setSavingId] = useState(null);
     const [creating, setCreating] = useState(false);
     const [showAddModal, setShowAddModal] = useState(false);
+    const [pendingBlogIds, setPendingBlogIds] = useState(new Set());
     const [toast, setToast] = useState(null);
     const [bgImage, setBgImage] = useState('');
     const [savedBgImage, setSavedBgImage] = useState('');
@@ -467,29 +468,46 @@ export default function BlogsCatalogPage() {
 
     const handleAdd = () => setShowAddModal(true);
 
-    const handleModalSave = async (draft) => {
+    const handleModalSave = (newDraft) => {
+        const tempId = `pending-${Date.now()}`;
+        const newBlog = { ...newDraft, id: tempId, type: newDraft.type || '' };
+        const newBlogs = [...blogs, newBlog];
+        setBlogs(newBlogs);
+        setPendingBlogIds((prev) => new Set(prev).add(tempId));
+        setShowAddModal(false);
+        const newTotal = Math.max(1, Math.ceil(
+            (activeType === 'all' ? newBlogs : newBlogs.filter((b) => b.type === activeType)).length / PAGE_SIZE
+        ));
+        setCurrentPage(newTotal);
+    };
+
+    const saveNewBlogs = async () => {
+        if (pendingBlogIds.size === 0) return;
         setCreating(true);
         try {
-            const { data } = await createBlog({
-                title: draft.title,
-                description: draft.description,
-                image: draft.image,
-                video: draft.video,
-                link: draft.link,
-                type: draft.type || '',
-                enabled: draft.enabled
-            });
-            const newBlogs = [...blogs, data.blog];
-            setBlogs(newBlogs);
-            setShowAddModal(false);
-            // Navigate to the last page so the user can see the newly added blog
-            const newTotal = Math.max(1, Math.ceil(
-                (activeType === 'all' ? newBlogs : newBlogs.filter((b) => b.type === activeType)).length / PAGE_SIZE
-            ));
-            setCurrentPage(newTotal);
-            setToast({ type: 'success', message: 'Blog added' });
+            const saved = [];
+            for (const tempId of pendingBlogIds) {
+                const blog = blogs.find((b) => b.id === tempId);
+                if (!blog) continue;
+                const { data } = await createBlog({
+                    title: blog.title,
+                    description: blog.description,
+                    image: blog.image,
+                    video: blog.video,
+                    link: blog.link,
+                    type: blog.type || '',
+                    enabled: blog.enabled
+                });
+                saved.push({ tempId, realBlog: data.blog });
+            }
+            setBlogs((prev) => prev.map((b) => {
+                const match = saved.find((s) => s.tempId === b.id);
+                return match ? { ...b, ...match.realBlog } : b;
+            }));
+            setPendingBlogIds(new Set());
+            setToast({ type: 'success', message: `${saved.length} blog${saved.length !== 1 ? 's' : ''} saved` });
         } catch {
-            setToast({ type: 'error', message: 'Could not add blog' });
+            setToast({ type: 'error', message: 'Could not save blogs' });
         } finally {
             setCreating(false);
         }
@@ -557,8 +575,13 @@ export default function BlogsCatalogPage() {
                 title="Blogs"
                 subtitle="All blog posts for salescode.ai. Any blog added here can be featured on the landing page via Landing → Blogs."
             >
+                {pendingBlogIds.size > 0 && (
+                    <button className="btn-primary" onClick={saveNewBlogs} disabled={creating}>
+                        {creating ? 'Saving…' : 'Save Changes'}
+                    </button>
+                )}
                 <button className="btn-primary" onClick={handleAdd} disabled={creating || showAddModal}>
-                    {creating ? 'Adding…' : '+ Add blog'}
+                    + Add blog
                 </button>
             </AdminPageHeader>
 

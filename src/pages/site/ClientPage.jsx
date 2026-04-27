@@ -248,9 +248,6 @@ export default function ClientPage() {
                         )}
                     </AdminSection>
 
-                    <button type="submit" className="btn-save" disabled={saving}>
-                        {saving ? 'Saving…' : 'Save Changes'}
-                    </button>
                 </form>
             )}
 

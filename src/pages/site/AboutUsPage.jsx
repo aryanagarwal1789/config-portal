@@ -126,9 +126,6 @@ export default function AboutUsPage() {
                         </div>
                     </div>
 
-                    <button type="submit" className="btn-save" disabled={saving}>
-                        {saving ? 'Saving…' : 'Save Changes'}
-                    </button>
                 </form>
             )}
 
