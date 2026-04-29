@@ -1,12 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { getSections, updateSections, getAvailableBlogs } from '../../api/site';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import AdminSection from '../../components/admin/AdminSection';
 import Toast from '../../components/admin/Toast';
 import FileUploadButton from '../../components/admin/FileUploadButton';
 import SortableList, { SortableRow, DragHandle } from '../../components/admin/SortableList';
+import VisualEditorLayout from '../../components/admin/VisualEditorLayout';
 import '../../components/admin/adminShared.css';
 import '../../components/forms.css';
+
+const PREVIEW_URL = import.meta.env.VITE_PREVIEW_URL ?? 'http://localhost:3000';
 
 const SECTION_ACCENT = 'indigo';
 
@@ -603,10 +607,58 @@ export default function SectionsPage() {
     const [toast, setToast] = useState(null);
     const [expandedItems, setExpandedItems] = useState(() => new Set());
     const [justUploadedId, setJustUploadedId] = useState(null);
-    // When non-null, we render an inline blog picker above the section at this
-    // index. Loaded lazily from /sections/available-blogs.
     const [blogPickerIdx, setBlogPickerIdx] = useState(null);
     const [availableBlogs, setAvailableBlogs] = useState([]);
+    const [activeSection, setActiveSection] = useState(null);
+    const [activeFieldGroup, setActiveFieldGroup] = useState(null);
+    const [activeItemId, setActiveItemId] = useState(null);
+    const [sidebarBlogPickerOpen, setSidebarBlogPickerOpen] = useState(false);
+
+    const iframeRef = useRef(null);
+    const previewReady = useRef(false);
+    const currentSections = useRef([]);
+    const fieldRefs = useRef({});
+
+    const { pathname } = useLocation();
+    const navigate = useNavigate();
+    const isEditMode = pathname.endsWith('/edit');
+
+    useEffect(() => { currentSections.current = sections; }, [sections]);
+
+    useEffect(() => {
+        if (!isEditMode) return;
+        function onMessage(event) {
+            if (event.data?.type === 'PREVIEW_READY') {
+                previewReady.current = true;
+                sendAllSections(currentSections.current);
+            }
+            if (event.data?.type === 'FIELD_CLICK') {
+                const { sectionId, fieldGroup, itemId } = event.data;
+                setActiveSection(sectionId);
+                setActiveFieldGroup(fieldGroup);
+                setActiveItemId(itemId ?? null);
+                setTimeout(() => {
+                    const key = `${sectionId}-${fieldGroup}`;
+                    fieldRefs.current[key]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    fieldRefs.current[key]?.querySelector('input, textarea')?.focus();
+                }, 60);
+            }
+        }
+        window.addEventListener('message', onMessage);
+        return () => window.removeEventListener('message', onMessage);
+    }, [isEditMode]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (!isEditMode || !previewReady.current) return;
+        sendAllSections(sections);
+    }, [sections, isEditMode]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    function sendAllSections(secs) {
+        iframeRef.current?.contentWindow?.postMessage({ type: 'SECTIONS_ORDER', order: secs.map(s => ({ id: s.id, enabled: s.enabled !== false, label: s.label })) }, '*');
+        for (const s of secs) {
+            iframeRef.current?.contentWindow?.postMessage({ type: 'SECTION_UPDATE', sectionId: s.id, items: s.items, label: s.label }, '*');
+        }
+    }
 
     const onError = (msg) => setToast({ type: 'error', message: msg });
 
@@ -737,6 +789,7 @@ export default function SectionsPage() {
             const { data } = await updateSections(payload);
             setSections(data.sections || []);
             setToast({ type: 'success', message: 'Sections saved' });
+            if (isEditMode) iframeRef.current?.contentWindow?.postMessage({ type: 'RELOAD' }, '*');
         } catch {
             setToast({ type: 'error', message: 'Save failed' });
         } finally {
@@ -746,13 +799,373 @@ export default function SectionsPage() {
 
     if (loading) return <div className="admin-loading">Loading…</div>;
 
+    const sectionsSidebar = (() => {
+        const sIdx = activeSection ? sections.findIndex(s => s.id === activeSection) : -1;
+        const sec = sIdx >= 0 ? sections[sIdx] : null;
+
+        if (sec && sec.kind === 'card' && activeFieldGroup === 'card' && activeItemId) {
+            const iIdx = sec.items.findIndex(it => it.id === activeItemId);
+            const item = iIdx >= 0 ? sec.items[iIdx] : null;
+            return (
+                <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                    <div className="preview-sidebar-header">
+                        <button
+                            type="button"
+                            className="btn-secondary"
+                            style={{ fontSize: 12, padding: '4px 10px', marginBottom: 8 }}
+                            onClick={() => setActiveItemId(null)}
+                        >
+                            ← Back to cards
+                        </button>
+                        <p className="preview-sidebar-title">{item?.title || 'Untitled card'}</p>
+                        <p className="preview-sidebar-hint">Changes update live in the preview</p>
+                    </div>
+                    {item && (
+                        <div className="preview-sidebar-fields">
+                            <div className="form-group">
+                                <label>Image</label>
+                                {item.image && (
+                                    <img src={item.image} alt="" style={{ width: '100%', borderRadius: 8, marginBottom: 8, objectFit: 'cover', maxHeight: 140 }} />
+                                )}
+                                <div style={{ display: 'flex', gap: 8 }}>
+                                    <FileUploadButton
+                                        label={item.image ? 'Replace' : 'Upload'}
+                                        accept="image/*"
+                                        onUploaded={url => updateItem(sIdx, iIdx, { image: url })}
+                                        onError={onError}
+                                    />
+                                    {item.image && (
+                                        <button type="button" className="btn-remove" onClick={() => updateItem(sIdx, iIdx, { image: '' })}>Clear</button>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="form-group">
+                                <label>Title</label>
+                                <input
+                                    value={item.title || ''}
+                                    onChange={e => updateItem(sIdx, iIdx, { title: e.target.value })}
+                                    placeholder="Card title"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Read More URL</label>
+                                <input
+                                    value={item.subtitle || ''}
+                                    onChange={e => updateItem(sIdx, iIdx, { subtitle: e.target.value })}
+                                    placeholder="https://…"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Description</label>
+                                <textarea
+                                    rows={3}
+                                    value={item.description || ''}
+                                    onChange={e => updateItem(sIdx, iIdx, { description: e.target.value })}
+                                    placeholder="Short description"
+                                />
+                            </div>
+                            <PointsEditor
+                                points={item.points || []}
+                                onChange={next => updateItem(sIdx, iIdx, { points: next })}
+                            />
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        return (
+            <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                <div className="preview-sidebar-header">
+                    <p className="preview-sidebar-title">
+                        {sec ? sec.label || 'Section' : 'Sections Editor'}
+                    </p>
+                    <p className="preview-sidebar-hint">
+                        {sec
+                            ? 'Editing section — changes update live'
+                            : 'Click on any highlighted area in the preview to edit it'}
+                    </p>
+                </div>
+                {sec && (
+                    <div className="preview-sidebar-fields">
+                        <div
+                            ref={el => { fieldRefs.current[`${activeSection}-label`] = el; }}
+                            className={`form-group${activeFieldGroup === 'label' ? ' is-active' : ''}`}
+                        >
+                            <label>Section Heading</label>
+                            <input
+                                value={sec.label}
+                                onChange={e => updateSection(sIdx, { label: e.target.value })}
+                                placeholder="Section heading"
+                            />
+                        </div>
+
+                        {sec.kind === 'image' && sec.cardinality === 'single' && (
+                            <div
+                                ref={el => { fieldRefs.current[`${activeSection}-images`] = el; }}
+                                className={`form-group${activeFieldGroup === 'images' ? ' is-active' : ''}`}
+                            >
+                                <label>Image</label>
+                                {sec.items[0]?.url && (
+                                    <img src={sec.items[0].url} alt="" style={{ width: '100%', borderRadius: 8, marginBottom: 8, objectFit: 'cover', maxHeight: 140 }} />
+                                )}
+                                <div style={{ display: 'flex', gap: 8 }}>
+                                    <FileUploadButton
+                                        label={sec.items[0]?.url ? 'Replace' : 'Upload'}
+                                        accept="image/*"
+                                        onUploaded={url => {
+                                            if (sec.items.length > 0) updateItem(sIdx, 0, { url });
+                                            else addItem(sIdx, url);
+                                        }}
+                                        onError={onError}
+                                    />
+                                    {sec.items[0]?.url && (
+                                        <button type="button" className="btn-remove" onClick={() => updateItem(sIdx, 0, { url: '' })}>Clear</button>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                        {sec.kind === 'image' && sec.cardinality !== 'single' && (
+                            <div
+                                ref={el => { fieldRefs.current[`${activeSection}-images`] = el; }}
+                                className={`form-group${activeFieldGroup === 'images' ? ' is-active' : ''}`}
+                            >
+                                <label>Images ({sec.items.length})</label>
+                                <SortableList
+                                    items={sec.items}
+                                    getId={i => i.id}
+                                    onReorder={next => reorderItems(sIdx, next)}
+                                >
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 10 }}>
+                                        {sec.items.map((item, iIdx) => (
+                                            <SortableRow key={item.id} id={item.id}>
+                                                {({ attributes, listeners }) => (
+                                                    <div style={{ position: 'relative' }}>
+                                                        <div
+                                                            {...attributes}
+                                                            {...listeners}
+                                                            style={{ cursor: 'grab', display: 'flex', alignItems: 'center', justifyContent: 'center', height: 56, minWidth: 60, maxWidth: 100, borderRadius: 6, border: '1px solid var(--border)', background: 'var(--bg-elevated)', padding: 4, boxSizing: 'border-box' }}
+                                                        >
+                                                            {item.url && (
+                                                                <img
+                                                                    src={item.url}
+                                                                    alt={item.alt || ''}
+                                                                    style={{ height: '100%', width: 'auto', maxWidth: 92, objectFit: 'contain', pointerEvents: 'none' }}
+                                                                />
+                                                            )}
+                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            className="btn-remove"
+                                                            style={{ position: 'absolute', top: -6, right: -6, padding: '1px 5px', fontSize: 10, lineHeight: 1.4 }}
+                                                            onClick={() => removeItem(sIdx, iIdx)}
+                                                        >✕</button>
+                                                    </div>
+                                                )}
+                                            </SortableRow>
+                                        ))}
+                                    </div>
+                                </SortableList>
+                                <FileUploadButton
+                                    label="+ Upload image"
+                                    accept="image/*"
+                                    onUploaded={url => addItem(sIdx, url)}
+                                    onError={onError}
+                                />
+                            </div>
+                        )}
+
+                        {sec.kind === 'card' && (
+                            <div
+                                ref={el => { fieldRefs.current[`${activeSection}-card`] = el; }}
+                                className={`form-group${activeFieldGroup === 'card' ? ' is-active' : ''}`}
+                            >
+                                <label>Cards ({sec.items.length})</label>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                                    {sec.items.length === 0 ? (
+                                        <div className="admin-empty" style={{ padding: 12 }}>No cards yet.</div>
+                                    ) : (
+                                        sec.items.map(item => (
+                                            <button
+                                                key={item.id}
+                                                type="button"
+                                                onClick={() => setActiveItemId(item.id)}
+                                                style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--bg-elevated)', cursor: 'pointer', textAlign: 'left', width: '100%' }}
+                                            >
+                                                {item.image && (
+                                                    <img src={item.image} alt="" style={{ width: 40, height: 32, objectFit: 'cover', borderRadius: 4, flexShrink: 0 }} />
+                                                )}
+                                                <span style={{ fontSize: 13, color: 'var(--text-primary)', fontWeight: 500, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                    {item.title || <span style={{ color: 'var(--text-muted)' }}>Untitled card</span>}
+                                                </span>
+                                                <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>Edit →</span>
+                                            </button>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        {sec.kind === 'blog' && (
+                            <div
+                                ref={el => { fieldRefs.current[`${activeSection}-blogs`] = el; }}
+                                className={`form-group${activeFieldGroup === 'blogs' ? ' is-active' : ''}`}
+                            >
+                                {sidebarBlogPickerOpen ? (
+                                    <>
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                                            <label style={{ margin: 0 }}>Choose a blog</label>
+                                            <button type="button" className="btn-remove" style={{ padding: '2px 8px', fontSize: 11 }} onClick={() => setSidebarBlogPickerOpen(false)}>✕ Close</button>
+                                        </div>
+                                        {pickerOptions.filter(b => !sections.find(s => s.id === activeSection)?.items.some(it => it.blogId === b.id || it.id === b.id)).length === 0 ? (
+                                            <div className="admin-empty" style={{ padding: 12, fontSize: 12 }}>No more blogs available.</div>
+                                        ) : (
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                                                {availableBlogs
+                                                    .filter(b => !sec.items.some(it => it.blogId === b.id || it.id === b.id))
+                                                    .map(b => (
+                                                        <button
+                                                            key={b.id}
+                                                            type="button"
+                                                            onClick={() => { addBlogItem(sIdx, b); setSidebarBlogPickerOpen(false); }}
+                                                            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--bg-elevated)', cursor: 'pointer', textAlign: 'left', width: '100%' }}
+                                                        >
+                                                            {b.image && <img src={b.image} alt="" style={{ width: 40, height: 28, objectFit: 'cover', borderRadius: 4, flexShrink: 0 }} />}
+                                                            <span style={{ fontSize: 12, color: 'var(--text-primary)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                                {b.title || 'Untitled blog'}
+                                                            </span>
+                                                            <span style={{ fontSize: 11, color: 'var(--accent)', fontWeight: 600, flexShrink: 0 }}>+ Add</span>
+                                                        </button>
+                                                    ))
+                                                }
+                                            </div>
+                                        )}
+                                    </>
+                                ) : (
+                                    <>
+                                        <label>Featured Blogs ({sec.items.length})</label>
+                                        {sec.items.length === 0 ? (
+                                            <div className="admin-empty" style={{ padding: 12, fontSize: 12 }}>No blogs featured yet.</div>
+                                        ) : (
+                                            <SortableList
+                                                items={sec.items}
+                                                getId={i => i.id}
+                                                onReorder={next => reorderItems(sIdx, next)}
+                                            >
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 10 }}>
+                                                    {sec.items.map((item, iIdx) => (
+                                                        <SortableRow key={item.id} id={item.id}>
+                                                            {({ attributes, listeners }) => (
+                                                                <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--bg-elevated)' }}>
+                                                                    <div {...attributes} {...listeners} style={{ cursor: 'grab', color: 'var(--text-muted)', fontSize: 14, userSelect: 'none', lineHeight: 1 }}>⠿</div>
+                                                                    {item.image && <img src={item.image} alt="" style={{ width: 40, height: 28, objectFit: 'cover', borderRadius: 4, flexShrink: 0, pointerEvents: 'none' }} />}
+                                                                    <span style={{ fontSize: 12, color: 'var(--text-primary)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                                        {item.title || 'Untitled blog'}
+                                                                    </span>
+                                                                    <button type="button" className="btn-remove" style={{ padding: '2px 6px', fontSize: 11, flexShrink: 0 }} onClick={() => removeItem(sIdx, iIdx)}>✕</button>
+                                                                </div>
+                                                            )}
+                                                        </SortableRow>
+                                                    ))}
+                                                </div>
+                                            </SortableList>
+                                        )}
+                                        <button
+                                            type="button"
+                                            className="btn-secondary"
+                                            style={{ width: '100%', justifyContent: 'center' }}
+                                            onClick={async () => {
+                                                if (availableBlogs.length === 0) await loadAvailableBlogs();
+                                                setSidebarBlogPickerOpen(true);
+                                            }}
+                                        >
+                                            + Add blog
+                                        </button>
+                                    </>
+                                )}
+                            </div>
+                        )}
+
+                        {sec.kind === 'video' && sec.cardinality === 'single' && (
+                            <div
+                                ref={el => { fieldRefs.current[`${activeSection}-video`] = el; }}
+                                className={`form-group${activeFieldGroup === 'video' ? ' is-active' : ''}`}
+                            >
+                                <label>Video</label>
+                                {sec.items[0]?.thumbnail && (
+                                    <img src={sec.items[0].thumbnail} alt="" style={{ width: '100%', borderRadius: 8, marginBottom: 8, objectFit: 'cover', maxHeight: 120 }} />
+                                )}
+                                <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+                                    <FileUploadButton
+                                        label={sec.items[0]?.url ? 'Replace video' : 'Upload video'}
+                                        accept="video/*"
+                                        onUploaded={url => {
+                                            if (sec.items.length > 0) updateItem(sIdx, 0, { url });
+                                            else addItem(sIdx, url);
+                                        }}
+                                        onError={onError}
+                                    />
+                                </div>
+                                <label style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4, display: 'block' }}>Thumbnail</label>
+                                <div style={{ display: 'flex', gap: 8 }}>
+                                    <FileUploadButton
+                                        label={sec.items[0]?.thumbnail ? 'Replace thumb' : 'Upload thumb'}
+                                        accept="image/*"
+                                        onUploaded={url => {
+                                            if (sec.items.length > 0) updateItem(sIdx, 0, { thumbnail: url });
+                                        }}
+                                        onError={onError}
+                                    />
+                                    {sec.items[0]?.thumbnail && (
+                                        <button type="button" className="btn-remove" onClick={() => updateItem(sIdx, 0, { thumbnail: '' })}>Clear</button>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <label style={{ margin: 0 }}>Visible on page</label>
+                            <label className="admin-toggle" title={sec.enabled !== false ? 'Disable section' : 'Enable section'}>
+                                <input
+                                    type="checkbox"
+                                    checked={sec.enabled !== false}
+                                    onChange={e => updateSection(sIdx, { enabled: e.target.checked })}
+                                />
+                                <span className="admin-toggle-track">
+                                    <span className="admin-toggle-thumb" />
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                )}
+            </div>
+        );
+    })();
+
+    if (isEditMode) {
+        return (
+            <>
+                <VisualEditorLayout
+                    title="Landing Page"
+                    backTo="/sections"
+                    iframeRef={iframeRef}
+                    src={PREVIEW_URL}
+                    onSave={save}
+                    saving={saving}
+                    sidebarContent={sectionsSidebar}
+                />
+                <Toast message={toast?.message} type={toast?.type} onClose={() => setToast(null)} />
+            </>
+        );
+    }
+
     return (
         <>
             <AdminPageHeader
                 title="Landing Sections"
                 subtitle="Every block that renders on the salescode.ai landing page — images, videos and cards — managed together. Drag sections to reorder them as they should appear on the page."
             >
-                {/* <button className="btn-secondary" onClick={addSection}>+ Add section</button> */}
+                <button className="btn-secondary" onClick={() => navigate('/editor?p=/')}>Preview &amp; Edit</button>
                 <button className="btn-primary" onClick={save} disabled={saving}>
                     {saving ? 'Saving…' : 'Save Changes'}
                 </button>
@@ -841,6 +1254,7 @@ export default function SectionsPage() {
                     </div>
                 </SortableList>
             )}
+
 
             <Toast message={toast?.message} type={toast?.type} onClose={() => setToast(null)} />
         </>

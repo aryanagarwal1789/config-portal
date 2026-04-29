@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
     listBlogs,
     createBlog,
@@ -15,7 +16,10 @@ import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import Toast from '../../components/admin/Toast';
 import FileUploadButton from '../../components/admin/FileUploadButton';
 import SortableList, { SortableRow, DragHandle } from '../../components/admin/SortableList';
+import VisualEditorLayout from '../../components/admin/VisualEditorLayout';
 import '../../components/admin/adminShared.css';
+
+const PREVIEW_URL = import.meta.env.VITE_PREVIEW_URL ?? 'http://localhost:3000';
 
 function Caret() {
     return (
@@ -372,6 +376,71 @@ export default function BlogsCatalogPage() {
     const [savedBgImage, setSavedBgImage] = useState('');
     const [savingBg, setSavingBg] = useState(false);
     const [bgExpanded, setBgExpanded] = useState(false);
+    const [activeBlogField, setActiveBlogField] = useState(null);
+    const [activeBlogId, setActiveBlogId] = useState(null);
+    const [sidebarDraft, setSidebarDraft] = useState(null);
+    const [sidebarSaving, setSidebarSaving] = useState(false);
+
+    const iframeRef     = useRef(null);
+    const previewReady  = useRef(false);
+    const currentBlogs  = useRef([]);
+    const currentBgImg  = useRef('');
+    const fieldRefs     = useRef({});
+
+    const { pathname } = useLocation();
+    const navigate = useNavigate();
+    const isEditMode = pathname.endsWith('/edit');
+
+    useEffect(() => {
+        currentBlogs.current = blogs;
+    }, [blogs]);
+    useEffect(() => {
+        currentBgImg.current = bgImage;
+    }, [bgImage]);
+
+    useEffect(() => {
+        if (!isEditMode) return;
+        function onMessage(event) {
+            if (event.data?.type === 'PREVIEW_READY') {
+                previewReady.current = true;
+                iframeRef.current?.contentWindow?.postMessage(
+                    { type: 'BLOGS_UPDATE', blogs: currentBlogs.current, bgImage: currentBgImg.current },
+                    '*'
+                );
+            }
+            if (event.data?.type === 'FIELD_CLICK' && event.data?.pageId === 'blog') {
+                const { fieldGroup, blogId } = event.data;
+                setActiveBlogField(fieldGroup || null);
+                setActiveBlogId(blogId || null);
+                setTimeout(() => {
+                    fieldRefs.current[fieldGroup]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 60);
+            }
+        }
+        window.addEventListener('message', onMessage);
+        return () => window.removeEventListener('message', onMessage);
+    }, [isEditMode]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // Push live updates whenever blogs, draft, or bgImage change while in edit mode.
+    useEffect(() => {
+        if (!isEditMode || !previewReady.current) return;
+        const base = (editingId && draft)
+            ? blogs.map((b) => (b.id === editingId ? { ...b, ...draft } : b))
+            : blogs;
+        const blogsForPreview = sidebarDraft
+            ? base.map((b) => (b.id === sidebarDraft.id ? { ...b, ...sidebarDraft } : b))
+            : base;
+        iframeRef.current?.contentWindow?.postMessage(
+            { type: 'BLOGS_UPDATE', blogs: blogsForPreview, bgImage },
+            '*'
+        );
+    }, [blogs, bgImage, isEditMode, draft, editingId, sidebarDraft]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (!activeBlogId) { setSidebarDraft(null); return; }
+        const found = blogs.find((b) => b.id === activeBlogId);
+        if (found) setSidebarDraft({ ...found });
+    }, [activeBlogId]); // eslint-disable-line react-hooks/exhaustive-deps
     // 'all' = show every blog; otherwise a BLOG_CATEGORIES key. Filter is
     // admin-only — reorder (drag) is disabled while a filter is active to
     // avoid ambiguous ordering between the filtered view and full list.
@@ -418,6 +487,28 @@ export default function BlogsCatalogPage() {
             setToast({ type: 'error', message: 'Save failed' });
         } finally {
             setSavingBg(false);
+        }
+    };
+
+    const saveSidebarBlog = async () => {
+        if (!sidebarDraft) return;
+        setSidebarSaving(true);
+        try {
+            const { data } = await updateBlog(sidebarDraft.id, {
+                image: sidebarDraft.image,
+                video: sidebarDraft.video,
+                link: sidebarDraft.link,
+                title: sidebarDraft.title,
+                description: sidebarDraft.description,
+                type: sidebarDraft.type || '',
+                enabled: sidebarDraft.enabled
+            });
+            setBlogs((prev) => prev.map((b) => (b.id === sidebarDraft.id ? { ...b, ...data.blog } : b)));
+            setToast({ type: 'success', message: 'Blog saved' });
+        } catch {
+            setToast({ type: 'error', message: 'Save failed' });
+        } finally {
+            setSidebarSaving(false);
         }
     };
 
@@ -551,12 +642,140 @@ export default function BlogsCatalogPage() {
         handleReorder(fullReordered);
     };
 
+    const blogSidebar = (
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+            <div className="preview-sidebar-header">
+                <p className="preview-sidebar-title">Blog</p>
+                <p className="preview-sidebar-hint">Click any highlighted area to jump to its field</p>
+            </div>
+            <div className="preview-sidebar-fields">
+                <div
+                    ref={el => { fieldRefs.current['bgImage'] = el; }}
+                    className={`form-group${activeBlogField === 'bgImage' ? ' is-active' : ''}`}
+                >
+                    <label>Background Image</label>
+                    {bgImage && (
+                        <img src={bgImage} alt="" style={{ width: '100%', borderRadius: 8, marginBottom: 8, objectFit: 'cover', maxHeight: 120 }} />
+                    )}
+                    <div style={{ display: 'flex', gap: 8 }}>
+                        <FileUploadButton
+                            label={bgImage ? 'Replace' : 'Upload'}
+                            accept="image/*"
+                            onUploaded={url => setBgImage(url)}
+                            onError={msg => setToast({ type: 'error', message: msg })}
+                        />
+                        {bgImage && (
+                            <button type="button" className="btn-remove" onClick={() => setBgImage('')}>Clear</button>
+                        )}
+                    </div>
+                </div>
+
+                {activeBlogField === 'blog' && sidebarDraft && (
+                    <div
+                        ref={el => { fieldRefs.current['blog'] = el; }}
+                        className={`form-group${activeBlogField === 'blog' ? ' is-active' : ''}`}
+                    >
+                        <label style={{ marginBottom: 8, display: 'block', fontWeight: 600 }}>
+                            Editing: {sidebarDraft.title || 'Untitled'}
+                        </label>
+                        <div className="admin-field" style={{ marginBottom: 10 }}>
+                            <label>Thumbnail</label>
+                            {sidebarDraft.image && (
+                                <img src={sidebarDraft.image} alt="" style={{ width: '100%', borderRadius: 8, marginBottom: 8, objectFit: 'cover', maxHeight: 120 }} />
+                            )}
+                            <div style={{ display: 'flex', gap: 8 }}>
+                                <FileUploadButton
+                                    label={sidebarDraft.image ? 'Replace' : 'Upload'}
+                                    accept="image/*"
+                                    onUploaded={url => setSidebarDraft(d => ({ ...d, image: url }))}
+                                    onError={msg => setToast({ type: 'error', message: msg })}
+                                />
+                                {sidebarDraft.image && (
+                                    <button type="button" className="btn-remove" onClick={() => setSidebarDraft(d => ({ ...d, image: '' }))}>Clear</button>
+                                )}
+                            </div>
+                        </div>
+                        <div className="admin-field" style={{ marginBottom: 10 }}>
+                            <label>Title</label>
+                            <input
+                                value={sidebarDraft.title}
+                                onChange={e => setSidebarDraft(d => ({ ...d, title: e.target.value }))}
+                                placeholder="Blog title"
+                            />
+                        </div>
+                        <div className="admin-field" style={{ marginBottom: 10 }}>
+                            <label>Description</label>
+                            <textarea
+                                rows={3}
+                                value={sidebarDraft.description}
+                                onChange={e => setSidebarDraft(d => ({ ...d, description: e.target.value }))}
+                                placeholder="Short summary"
+                            />
+                        </div>
+                        <div className="admin-field" style={{ marginBottom: 10 }}>
+                            <label>Type</label>
+                            <select value={sidebarDraft.type || ''} onChange={e => setSidebarDraft(d => ({ ...d, type: e.target.value }))}>
+                                <option value="">— Uncategorized —</option>
+                                {BLOG_CATEGORIES.map(key => (
+                                    <option key={key} value={key}>{BLOG_CATEGORY_LABELS[key]}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="admin-field" style={{ marginBottom: 10 }}>
+                            <label>Link</label>
+                            <input
+                                value={sidebarDraft.link}
+                                onChange={e => setSidebarDraft(d => ({ ...d, link: e.target.value }))}
+                                placeholder="/blog/my-post"
+                            />
+                        </div>
+                        <div className="admin-field" style={{ marginBottom: 4 }}>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                                <input
+                                    type="checkbox"
+                                    checked={!!sidebarDraft.enabled}
+                                    onChange={e => setSidebarDraft(d => ({ ...d, enabled: e.target.checked }))}
+                                />
+                                Visible on blog page
+                            </label>
+                        </div>
+                    </div>
+                )}
+
+                {activeBlogField === 'blog' && !sidebarDraft && (
+                    <p style={{ color: 'var(--text-muted)', fontSize: 13, marginTop: 8 }}>Click a blog card in the preview to edit it.</p>
+                )}
+                {!activeBlogField && (
+                    <p style={{ color: 'var(--text-muted)', fontSize: 13, marginTop: 8 }}>Click any highlighted area to edit it.</p>
+                )}
+            </div>
+        </div>
+    );
+
+    if (isEditMode) {
+        return (
+            <>
+                <VisualEditorLayout
+                    title="Blog"
+                    backTo="/pages/blog"
+                    iframeRef={iframeRef}
+                    src={`${PREVIEW_URL}/blog`}
+                    onSave={activeBlogField === 'bgImage' ? saveBg : activeBlogField === 'blog' && sidebarDraft ? saveSidebarBlog : undefined}
+                    saving={activeBlogField === 'bgImage' ? savingBg : sidebarSaving}
+                    sidebarContent={blogSidebar}
+                />
+                <Toast message={toast?.message} type={toast?.type} onClose={() => setToast(null)} />
+            </>
+        );
+    }
+
     return (
         <>
             <AdminPageHeader
                 title="Blogs"
                 subtitle="All blog posts for salescode.ai. Any blog added here can be featured on the landing page via Landing → Blogs."
             >
+                <button className="btn-secondary" onClick={() => navigate('/editor?p=/blog')}>Preview &amp; Edit</button>
                 <button className="btn-primary" onClick={handleAdd} disabled={creating || showAddModal}>
                     {creating ? 'Adding…' : '+ Add blog'}
                 </button>
@@ -725,6 +944,7 @@ export default function BlogsCatalogPage() {
                     onToastError={(msg) => setToast({ type: 'error', message: msg })}
                 />
             )}
+
 
             <Toast
                 message={toast?.message}

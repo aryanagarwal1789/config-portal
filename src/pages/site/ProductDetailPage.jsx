@@ -1,12 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { getProduct, updateProduct, updateProductSidebar } from '../../api/site';
+import { getProduct, listProducts, updateProduct, updateProductSidebar } from '../../api/site';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import AdminSection from '../../components/admin/AdminSection';
 import Toast from '../../components/admin/Toast';
 import FileUploadButton from '../../components/admin/FileUploadButton';
 import SortableList, { SortableRow, DragHandle } from '../../components/admin/SortableList';
+import PreviewModal from '../../components/admin/PreviewModal';
 import '../../components/admin/adminShared.css';
+
+const PREVIEW_URL = import.meta.env.VITE_PREVIEW_URL ?? 'http://localhost:3000';
 
 const CATEGORIES = [
     { id: 'applications', label: 'Applications' },
@@ -35,7 +38,7 @@ function Caret() {
 export default function ProductDetailPage() {
     const { productId } = useParams();
     const [product, setProduct] = useState(null);
-    const [details, setDetails] = useState({ name: '', description: '', image: '', category: 'applications' });
+    const [details, setDetails] = useState({ name: '', description: '', image: '', category: 'applications', status: '', timelineStage: '', liveDate: '' });
     const [items, setItems] = useState([]);
     const [showRoute, setShowRoute] = useState(() => new Set());
     const [expanded, setExpanded] = useState(() => new Set());
@@ -43,6 +46,62 @@ export default function ProductDetailPage() {
     const [savingDetails, setSavingDetails] = useState(false);
     const [savingSidebar, setSavingSidebar] = useState(false);
     const [toast, setToast] = useState(null);
+    const [previewOpen, setPreviewOpen] = useState(false);
+
+    const iframeRef       = useRef(null);
+    const previewReady    = useRef(false);
+    const allProducts     = useRef(null); // full list fetched on preview open
+    const pendingDetails  = useRef(null); // details snapshot to send after PREVIEW_READY
+
+    function mergedProducts(det) {
+        if (!allProducts.current) return null;
+        return allProducts.current.map((p) =>
+            p.productId === productId ? { ...p, ...det } : p
+        );
+    }
+
+    // Listen for PREVIEW_READY, then send the full products list with edits merged in.
+    useEffect(() => {
+        function onMessage(event) {
+            if (event.data?.type !== 'PREVIEW_READY') return;
+            previewReady.current = true;
+            const merged = mergedProducts(pendingDetails.current ?? details);
+            if (merged) postToIframe({ type: 'PRODUCTS_UPDATE', products: merged });
+            pendingDetails.current = null;
+        }
+        window.addEventListener('message', onMessage);
+        return () => window.removeEventListener('message', onMessage);
+    }, [productId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // Push live updates whenever details change while preview is open and ready.
+    useEffect(() => {
+        if (!previewOpen || !previewReady.current) return;
+        const merged = mergedProducts(details);
+        if (merged) postToIframe({ type: 'PRODUCTS_UPDATE', products: merged });
+    }, [details, previewOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    function postToIframe(msg) {
+        iframeRef.current?.contentWindow?.postMessage(msg, '*');
+    }
+
+    async function openPreview() {
+        previewReady.current = false;
+        pendingDetails.current = { ...details };
+        // Fetch full products list (read-only) so we can send PRODUCTS_UPDATE.
+        try {
+            const { data } = await listProducts();
+            allProducts.current = data.products || [];
+        } catch {
+            allProducts.current = [];
+        }
+        setPreviewOpen(true);
+    }
+
+    function closePreview() {
+        setPreviewOpen(false);
+        previewReady.current = false;
+        pendingDetails.current = null;
+    }
 
     useEffect(() => {
         (async () => {
@@ -50,10 +109,13 @@ export default function ProductDetailPage() {
                 const { data } = await getProduct(productId);
                 setProduct(data.product);
                 setDetails({
-                    name: data.product?.name || '',
-                    description: data.product?.description || '',
-                    image: data.product?.image || '',
-                    category: data.product?.category || 'applications'
+                    name:          data.product?.name          || '',
+                    description:   data.product?.description   || '',
+                    image:         data.product?.image         || '',
+                    category:      data.product?.category      || 'applications',
+                    status:        data.product?.status        || '',
+                    timelineStage: data.product?.timelineStage || '',
+                    liveDate:      data.product?.liveDate      || '',
                 });
                 setItems(data.product?.sidebar || []);
             } catch (e) {
@@ -68,10 +130,13 @@ export default function ProductDetailPage() {
         setSavingDetails(true);
         try {
             const { data } = await updateProduct(productId, {
-                name: details.name,
-                description: details.description,
-                image: details.image,
-                category: details.category
+                name:          details.name,
+                description:   details.description,
+                image:         details.image,
+                category:      details.category,
+                status:        details.status        || null,
+                timelineStage: details.timelineStage || null,
+                liveDate:      details.liveDate      || null,
             });
             setProduct(data.product);
             setToast({ type: 'success', message: 'Product details saved' });
@@ -131,6 +196,7 @@ export default function ProductDetailPage() {
                 subtitle="Edit the product details below. The sidebar section configures the menu items shown inside the product's page."
             >
                 <Link to="/products" className="btn-secondary">← All products</Link>
+                <button className="btn-secondary" onClick={openPreview}>Preview</button>
             </AdminPageHeader>
 
             <AdminSection
@@ -187,6 +253,46 @@ export default function ProductDetailPage() {
                                 placeholder="Short line shown under the title on the card"
                             />
                         </div>
+
+                        <div className="admin-field">
+                            <label>Status badge</label>
+                            <select
+                                value={details.status}
+                                onChange={(e) => setDetails({ ...details, status: e.target.value })}
+                            >
+                                <option value="">None</option>
+                                <option value="live">Live</option>
+                                <option value="beta">Beta</option>
+                                <option value="upcoming">Coming Soon</option>
+                            </select>
+                        </div>
+
+                        {(details.status === 'beta' || details.status === 'upcoming') && (
+                            <>
+                                <div className="admin-field">
+                                    <label>Timeline stage</label>
+                                    <select
+                                        value={details.timelineStage}
+                                        onChange={(e) => setDetails({ ...details, timelineStage: e.target.value })}
+                                    >
+                                        <option value="">— Select stage —</option>
+                                        <option value="planning">Planning</option>
+                                        <option value="in-development">In Development</option>
+                                        <option value="uat">UAT</option>
+                                        <option value="beta">Beta</option>
+                                        <option value="live">Live</option>
+                                    </select>
+                                </div>
+                                <div className="admin-field">
+                                    <label>Expected live date</label>
+                                    <input
+                                        value={details.liveDate}
+                                        onChange={(e) => setDetails({ ...details, liveDate: e.target.value })}
+                                        placeholder="e.g. JUN 2026"
+                                    />
+                                </div>
+                            </>
+                        )}
 
                         <div className="admin-field">
                             <label>Category</label>
@@ -309,6 +415,13 @@ export default function ProductDetailPage() {
                     </SortableList>
                 )}
             </AdminSection>
+
+            <PreviewModal
+                isOpen={previewOpen}
+                onClose={closePreview}
+                iframeRef={iframeRef}
+                src={PREVIEW_URL}
+            />
 
             <Toast
                 message={toast?.message}

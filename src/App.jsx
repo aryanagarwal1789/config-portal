@@ -9,12 +9,14 @@ import AdminLayout from './layouts/AdminLayout';
 import ContentPage from './pages/site/ContentPage';
 import SectionsPage from './pages/site/SectionsPage';
 import SeoPage from './pages/site/SeoPage';
+import Decimal from 'decimal.js';
 import AboutUsPage from './pages/site/AboutUsPage';
 import ClientPage from './pages/site/ClientPage';
 import ContactUsPage from './pages/site/ContactUsPage';
 import ProductsListPage from './pages/site/ProductsListPage';
 import ProductDetailPage from './pages/site/ProductDetailPage';
 import BlogsCatalogPage from './pages/site/BlogsCatalogPage';
+import VisualEditor from './pages/site/VisualEditor';
 import './App.css';
 
 function SunIcon() {
@@ -49,6 +51,7 @@ export default function App() {
     });
 
     useEffect(() => {
+         
         document.documentElement.setAttribute('data-theme', theme);
         localStorage.setItem('cp-theme', theme);
     }, [theme]);
@@ -82,9 +85,10 @@ export default function App() {
                 <main className="app-main">
                     <Routes>
                         <Route element={<AdminLayout />}>
-                            <Route path="/" element={<Navigate to="/content" replace />} />
+                            <Route path="/" element={<Navigate to="/editor" replace />} />
                             <Route path="/content" element={<ContentPage />} />
                             <Route path="/sections" element={<SectionsPage />} />
+                            <Route path="/sections/edit" element={<SectionsPage />} />
                             <Route path="/images" element={<Navigate to="/sections" replace />} />
                             <Route path="/videos" element={<Navigate to="/sections" replace />} />
                             <Route path="/cards" element={<Navigate to="/sections" replace />} />
@@ -93,11 +97,17 @@ export default function App() {
                             <Route path="/seo/:pageKey" element={<SeoPage />} />
                             <Route path="/pages" element={<Navigate to="/pages/blog" replace />} />
                             <Route path="/pages/blog" element={<BlogsCatalogPage />} />
+                            <Route path="/pages/blog/edit" element={<BlogsCatalogPage />} />
                             <Route path="/pages/contact-us" element={<ContactUsPage />} />
+                            <Route path="/pages/contact-us/edit" element={<ContactUsPage />} />
                             <Route path="/pages/client" element={<ClientPage />} />
+                            <Route path="/pages/client/edit" element={<ClientPage />} />
                             <Route path="/pages/about-us" element={<AboutUsPage />} />
+                            <Route path="/pages/about-us/edit" element={<AboutUsPage />} />
                             <Route path="/products" element={<ProductsListPage />} />
+                            <Route path="/products/edit" element={<ProductsListPage />} />
                             <Route path="/products/:productId" element={<ProductDetailPage />} />
+                            <Route path="/editor" element={<VisualEditor />} />
                         </Route>
 
                         {/* Legacy routes kept intact */}
