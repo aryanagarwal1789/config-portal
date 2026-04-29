@@ -37,6 +37,8 @@ function Icon({ name }) {
             return <svg {...common}><rect x="3" y="3" width="18" height="7" rx="1.5"/><rect x="3" y="13" width="18" height="7" rx="1.5"/></svg>;
         case 'chevron':
             return <svg {...common}><path d="m9 18 6-6-6-6"/></svg>;
+        case 'preview':
+            return <svg {...common}><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>;
         case 'panel-collapse':
             return <svg {...common}><path d="m11 17-5-5 5-5"/><path d="m17 17-5-5 5-5"/></svg>;
         case 'panel-expand':
@@ -47,6 +49,7 @@ function Icon({ name }) {
 }
 
 const NAV_ITEMS = [
+    { to: '/editor',   label: 'Preview & Edit', icon: 'preview' },
     { to: '/landing',  label: 'Landing Page', icon: 'landing', section: 'Landing Page', children: [
         { to: '/content',  label: 'Content' },
         { to: '/sections', label: 'Sections' },

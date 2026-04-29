@@ -1,0 +1,147 @@
+/* ── Preview overlay + modal ── */
+.preview-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.72);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.preview-modal {
+    background: var(--bg-surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    display: flex;
+    flex-direction: column;
+    width: min(1200px, 95vw);
+    height: min(820px, 90vh);
+    overflow: hidden;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+}
+
+.preview-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.preview-modal-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.preview-modal-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.preview-close-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    line-height: 1;
+    transition: color var(--transition), background var(--transition);
+}
+.preview-close-btn:hover {
+    color: var(--text-primary);
+    background: var(--bg-hover);
+}
+
+.preview-modal-body {
+    flex: 1;
+    overflow: hidden;
+}
+
+.preview-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+}
+
+.btn-sm {
+    padding: 7px 16px;
+    font-size: 13px;
+}
+
+/* ── Sidebar split layout ── */
+.preview-modal.has-sidebar {
+    width: min(1440px, 98vw);
+}
+
+.preview-modal.has-sidebar .preview-modal-body {
+    display: flex;
+    overflow: hidden;
+}
+
+.preview-modal.has-sidebar .preview-iframe {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+}
+
+.preview-sidebar {
+    width: 320px;
+    flex-shrink: 0;
+    border-left: 1px solid var(--border);
+    background: var(--bg-surface);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.preview-sidebar-header {
+    padding: 16px 20px 14px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--bg-surface);
+    z-index: 1;
+}
+
+.preview-sidebar-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 4px;
+}
+
+.preview-sidebar-hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.5;
+}
+
+.preview-sidebar-fields {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    flex: 1;
+}
+
+/* Active field highlight when clicked from preview */
+.preview-sidebar-fields .form-group.is-active label,
+.preview-sidebar-fields .form-group.is-active .form-hint {
+    color: var(--accent);
+}
+
+.preview-sidebar-fields .form-group.is-active input,
+.preview-sidebar-fields .form-group.is-active textarea {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0, 198, 177, 0.12);
+}
