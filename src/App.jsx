@@ -9,7 +9,6 @@ import AdminLayout from './layouts/AdminLayout';
 import ContentPage from './pages/site/ContentPage';
 import SectionsPage from './pages/site/SectionsPage';
 import SeoPage from './pages/site/SeoPage';
-import Decimal from 'decimal.js';
 import AboutUsPage from './pages/site/AboutUsPage';
 import ClientPage from './pages/site/ClientPage';
 import ContactUsPage from './pages/site/ContactUsPage';
