@@ -27,15 +27,19 @@ export default function VisualEditorLayout({ title, backTo, onBack, adminHref, i
                         </button>
                     )}
                     {adminHref && (
-                        <button
-                            type="button"
-                            className="visual-editor-admin-btn"
-                            onClick={() => navigate(adminHref)}
-                            title="Manage content"
-                        >
-                            <GridIcon />
-                            <span>Manage</span>
-                        </button>
+                        <div className="visual-editor-tooltip-wrap">
+                            <button
+                                type="button"
+                                className="visual-editor-admin-btn"
+                                onClick={() => navigate(adminHref)}
+                            >
+                                <GridIcon />
+                                <span>Manage</span>
+                            </button>
+                            <div className="visual-editor-tooltip">
+                                Switch to the form-based editor to manage blogs, SEO, products, pages, and section content in detail.
+                            </div>
+                        </div>
                     )}
                 </div>
             </div>

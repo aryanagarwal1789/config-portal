@@ -50,7 +50,7 @@
 
 .visual-editor-actions {
     display: flex;
-    gap: 10px;
+    gap: 16px;
     min-width: 120px;
     justify-content: flex-end;
     align-items: center;
@@ -74,6 +74,46 @@
 .visual-editor-admin-btn:hover {
     color: var(--text-primary);
     background: var(--bg-hover);
+}
+
+.visual-editor-tooltip-wrap {
+    position: relative;
+    display: inline-flex;
+}
+
+.visual-editor-tooltip {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 240px;
+    background: var(--bg-elevated, #1e293b);
+    color: var(--text-primary, #f1f5f9);
+    font-size: 12px;
+    line-height: 1.5;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    z-index: 100;
+    pointer-events: none;
+}
+
+.visual-editor-tooltip::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    right: 14px;
+    width: 8px;
+    height: 8px;
+    background: var(--bg-elevated, #1e293b);
+    border-left: 1px solid var(--border);
+    border-top: 1px solid var(--border);
+    transform: rotate(45deg);
+}
+
+.visual-editor-tooltip-wrap:hover .visual-editor-tooltip {
+    display: block;
 }
 
 .visual-editor-body {
