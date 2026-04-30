@@ -12,7 +12,7 @@ function GridIcon() {
     );
 }
 
-export default function VisualEditorLayout({ title, backTo, onBack, adminHref, iframeRef, src, onSave, saving, sidebarContent }) {
+export default function VisualEditorLayout({ title, backTo, onBack, adminHref, iframeRef, src, onSave, saving, sidebarContent, iframeReady }) {
     const navigate = useNavigate();
     const handleBack = onBack ?? (() => backTo ? navigate(backTo) : navigate(-1));
     return (
@@ -40,7 +40,18 @@ export default function VisualEditorLayout({ title, backTo, onBack, adminHref, i
                 </div>
             </div>
             <div className="visual-editor-body">
-                <iframe ref={iframeRef} src={src} className="visual-editor-iframe" title="Preview" />
+                <div style={{ position: 'relative', flex: 1, display: 'flex' }}>
+                    <iframe ref={iframeRef} src={src} className="visual-editor-iframe" title="Preview" />
+                    {!iframeReady && (
+                        <div style={{
+                            position: 'absolute', inset: 0, background: '#f8f9fa',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            zIndex: 10,
+                        }}>
+                            <div style={{ width: 32, height: 32, border: '3px solid #e5e7eb', borderTopColor: '#0d9488', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+                        </div>
+                    )}
+                </div>
                 {sidebarContent && (
                     <div className="visual-editor-sidebar">
                         {sidebarContent}

@@ -27,23 +27,38 @@ const PAGE_TO_PATH = {
 
 // ─── Sections helpers ────────────────────────────────────────────────────────
 function PointsEditor({ points, onChange }) {
+    const normalize = (pt) => typeof pt === 'object' ? pt : { heading: pt ?? '', description: '' };
+    const patch = (i, change) => onChange(points.map((pt, j) => j === i ? { ...normalize(pt), ...change } : pt));
+
     return (
         <div>
             <label style={{ fontSize: 12, color: 'var(--text-muted)', display: 'block', marginBottom: 4 }}>Bullet points</label>
-            {points.map((pt, i) => (
-                <div key={i} style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
-                    <input
-                        value={pt}
-                        onChange={e => { const n = [...points]; n[i] = e.target.value; onChange(n); }}
-                        placeholder={`Point ${i + 1}`}
-                        style={{ flex: 1 }}
-                    />
-                    <button type="button" className="btn-remove" style={{ padding: '2px 7px' }}
-                        onClick={() => onChange(points.filter((_, j) => j !== i))}>✕</button>
-                </div>
-            ))}
+            {points.map((pt, i) => {
+                const p = normalize(pt);
+                return (
+                    <div key={i} style={{ border: '1px solid var(--color-border)', borderRadius: 8, padding: 10, marginBottom: 8 }}>
+                        <div style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
+                            <input
+                                value={p.heading}
+                                onChange={e => patch(i, { heading: e.target.value })}
+                                placeholder={`Point ${i + 1} heading`}
+                                style={{ flex: 1 }}
+                            />
+                            <button type="button" className="btn-remove" style={{ padding: '2px 7px' }}
+                                onClick={() => onChange(points.filter((_, j) => j !== i))}>✕</button>
+                        </div>
+                        <textarea
+                            rows={2}
+                            value={p.description}
+                            onChange={e => patch(i, { description: e.target.value })}
+                            placeholder="Description for this point"
+                            style={{ width: '100%', boxSizing: 'border-box' }}
+                        />
+                    </div>
+                );
+            })}
             <button type="button" className="btn-secondary" style={{ fontSize: 12, padding: '3px 10px' }}
-                onClick={() => onChange([...points, ''])}>+ Add point</button>
+                onClick={() => onChange([...points, { heading: '', description: '' }])}>+ Add point</button>
         </div>
     );
 }
@@ -58,6 +73,7 @@ export default function VisualEditor() {
 
     // Which Next.js page is currently visible in the iframe
     const [currentPage, setCurrentPage] = useState(null);
+    const [iframeReady, setIframeReady] = useState(false);
 
     const [toast, setToast] = useState(null);
 
@@ -137,7 +153,7 @@ export default function VisualEditor() {
     }
     function sendSections(secs) {
         post({ type: 'SECTIONS_ORDER', order: secs.map(s => ({ id: s.id, enabled: s.enabled !== false, label: s.label })) });
-        for (const s of secs) post({ type: 'SECTION_UPDATE', sectionId: s.id, items: s.items, label: s.label });
+        for (const s of secs) post({ type: 'SECTION_UPDATE', sectionId: s.id, items: s.items, label: s.label, videoUrl: s.videoUrl });
     }
 
     // ── Data loaders (idempotent — skip if already loaded) ─────────────────
@@ -294,11 +310,13 @@ export default function VisualEditor() {
             if (type === 'PREVIEW_READY') {
                 previewReady.current = true;
                 pushCurrentPageData(currentPageRef.current);
+                setTimeout(() => setIframeReady(true), 200);
             }
 
             if (type === 'PAGE_CHANGED') {
                 const page = event.data.page;
                 setCurrentPage(page);
+                setIframeReady(false);
                 // reset all active fields on navigation
                 setActiveSection(null); setActiveFieldGroup(null); setActiveItemId(null);
                 setActiveBlogField(null); setActiveBlogId(null);
@@ -362,6 +380,7 @@ export default function VisualEditor() {
             const payload = sections.map((s, i) => ({
                 id: s.id, label: s.label, kind: s.kind, cardinality: s.cardinality,
                 enabled: s.enabled !== false, order: i,
+                ...(s.kind === 'impact' ? { videoUrl: s.videoUrl || '' } : {}),
                 items: s.items.map((it, j) =>
                     s.kind === 'blog'
                         ? { id: it.blogId || it.id, blogId: it.blogId || it.id, order: j }
@@ -441,6 +460,7 @@ export default function VisualEditor() {
         let item;
         if (s.kind === 'image') item = { id: `img-${Date.now()}-${rand()}`, url, alt: '', order: 0 };
         else if (s.kind === 'video') item = { id: `vid-${Date.now()}-${rand()}`, url, title: '', description: '', thumbnail: '', order: 0 };
+        else if (s.kind === 'impact') item = { id: `stat-${Date.now()}-${rand()}`, title: '', description: '', order: 0 };
         else item = { id: `card-${Date.now()}-${rand()}`, title: '', subtitle: '', description: '', points: [], image: '', order: 0 };
         return s.cardinality === 'single' ? { ...s, items: [item] } : { ...s, items: [...s.items, item] };
     }));
@@ -746,6 +766,54 @@ export default function VisualEditor() {
                                 </div>
                             )}
 
+                            {sec.kind === 'impact' && (
+                                <>
+                                    <div ref={el => { fieldRefs.current[`${activeSection}-videoUrl`] = el; }} className="form-group">
+                                        <label>Flow Animation Video URL</label>
+                                        <input
+                                            value={sec.videoUrl || ''}
+                                            onChange={e => updateSection(sIdx, { videoUrl: e.target.value })}
+                                            placeholder="https://salescode.ai/.../flow-animation.mp4"
+                                        />
+                                        <span className="form-hint">URL for the animation video shown below the stats.</span>
+                                    </div>
+                                    <div ref={el => { fieldRefs.current[`${activeSection}-items`] = el; }} className={`form-group${activeFieldGroup === 'items' ? ' is-active' : ''}`}>
+                                        <label>Stats ({sec.items.length})</label>
+                                        <SortableList items={sec.items} getId={it => it.id} onReorder={next => reorderItems(sIdx, next)}>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 10 }}>
+                                                {sec.items.map((stat, iIdx) => (
+                                                    <SortableRow key={stat.id} id={stat.id}>
+                                                        {({ attributes, listeners }) => (
+                                                            <div style={{ border: '1px solid var(--border)', borderRadius: 8, padding: 10 }}>
+                                                                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                                                                    <div {...attributes} {...listeners} style={{ cursor: 'grab', color: 'var(--text-muted)', fontSize: 14, userSelect: 'none' }}>⠿</div>
+                                                                    <input
+                                                                        value={stat.title || ''}
+                                                                        onChange={e => updateItem(sIdx, iIdx, { title: e.target.value })}
+                                                                        placeholder="35"
+                                                                        style={{ width: 56, flexShrink: 0, textAlign: 'center' }}
+                                                                    />
+                                                                    <input
+                                                                        value={stat.description || ''}
+                                                                        onChange={e => updateItem(sIdx, iIdx, { description: e.target.value })}
+                                                                        placeholder="Reduction in Cost-to-Serve"
+                                                                        style={{ flex: 1 }}
+                                                                    />
+                                                                    <button type="button" className="btn-remove" style={{ padding: '2px 7px' }}
+                                                                        onClick={() => removeItem(sIdx, iIdx)}>✕</button>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </SortableRow>
+                                                ))}
+                                            </div>
+                                        </SortableList>
+                                        <button type="button" className="btn-secondary" style={{ fontSize: 12, padding: '3px 10px' }}
+                                            onClick={() => addItem(sIdx, null)}>+ Add stat</button>
+                                    </div>
+                                </>
+                            )}
+
                             <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                                 <label style={{ margin: 0 }}>Visible on page</label>
                                 <label className="admin-toggle">
@@ -919,6 +987,47 @@ export default function VisualEditor() {
                                 {clientPage.bannerImage && <button type="button" className="btn-remove" onClick={() => setClientPage(p => ({ ...p, bannerImage: '' }))}>Clear</button>}
                             </div>
                         </div>
+                        <div ref={el => { fieldRefs.current['images'] = el; }} className={`form-group${activeClientField === 'images' ? ' is-active' : ''}`}>
+                            <label>Client Logos ({(clientPage.images || []).length})</label>
+                            <SortableList
+                                items={clientPage.images || []}
+                                getId={img => img.id || img.url}
+                                onReorder={next => setClientPage(p => ({ ...p, images: next }))}
+                            >
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 10 }}>
+                                    {(clientPage.images || []).map((img, i) => (
+                                        <SortableRow key={img.id || img.url} id={img.id || img.url}>
+                                            {({ attributes, listeners }) => (
+                                                <div style={{ position: 'relative' }}>
+                                                    <div
+                                                        {...attributes}
+                                                        {...listeners}
+                                                        style={{ cursor: 'grab', display: 'flex', alignItems: 'center', justifyContent: 'center', height: 56, minWidth: 60, maxWidth: 100, borderRadius: 6, border: '1px solid var(--color-border)', background: 'var(--bg-elevated)', padding: 4, boxSizing: 'border-box' }}
+                                                    >
+                                                        {img.url && <img src={img.url} alt={img.alt || ''} style={{ height: '100%', width: 'auto', maxWidth: 92, objectFit: 'contain', pointerEvents: 'none' }} />}
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        className="btn-remove"
+                                                        style={{ position: 'absolute', top: -6, right: -6, padding: '1px 5px', fontSize: 10, lineHeight: 1.4 }}
+                                                        onClick={() => setClientPage(p => ({ ...p, images: p.images.filter((_, j) => j !== i) }))}
+                                                    >✕</button>
+                                                </div>
+                                            )}
+                                        </SortableRow>
+                                    ))}
+                                </div>
+                            </SortableList>
+                            <FileUploadButton
+                                label="+ Upload logo"
+                                accept="image/*"
+                                onUploaded={url => setClientPage(p => ({
+                                    ...p,
+                                    images: [...(p.images || []), { id: `img-${Date.now()}`, url, alt: '', caption: '', order: (p.images || []).length }]
+                                }))}
+                                onError={msg => setToast({ type: 'error', message: msg })}
+                            />
+                        </div>
                         <button type="button" className="btn-primary" style={{ width: '100%', justifyContent: 'center' }} onClick={saveClients} disabled={clientSaving}>{clientSaving ? 'Saving…' : 'Save Clients'}</button>
                     </div>
                 </div>
@@ -1023,6 +1132,7 @@ export default function VisualEditor() {
                 saving={effectiveSaving}
                 sidebarContent={sidebar}
                 adminHref="/content"
+                iframeReady={iframeReady}
             />
             <Toast message={toast?.message} type={toast?.type} onClose={() => setToast(null)} />
         </>
