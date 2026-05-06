@@ -2,11 +2,12 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
     getSections, updateSections,
-    listBlogs, updateBlog, getBlogsBgImage, updateBlogsBgImage,
+    listBlogs, createBlog, updateBlog, getBlogsBgImage, updateBlogsBgImage,
     getPage, updatePage,
     listProducts, updateProduct,
     getAvailableBlogs,
     getContent, updateContent,
+    getSeo, updateSeo,
     BLOG_CATEGORIES, BLOG_CATEGORY_LABELS,
 } from '../../api/site';
 import Toast from '../../components/admin/Toast';
@@ -16,6 +17,71 @@ import VisualEditorLayout from '../../components/admin/VisualEditorLayout';
 import '../../components/admin/adminShared.css';
 
 const PREVIEW_URL = import.meta.env.VITE_PREVIEW_URL ?? 'http://localhost:3000';
+const EMPTY_NEW_BLOG = { title: '', description: '', image: '', link: '', type: '', enabled: true };
+
+const PAGE_TO_SEO_KEY = {
+    landing:      'landing',
+    blog:         'blog',
+    about:        'about-us',
+    'contact-us': 'contact-us',
+    clients:      'client',
+};
+
+function SeoAccordion({ open, onToggle, data, onChange, saving, onSave, onAdvanced }) {
+    return (
+        <div style={{ borderTop: '1px solid var(--border)', flexShrink: 0 }}>
+            <button
+                type="button"
+                onClick={() => onToggle(!open)}
+                style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 20px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', textAlign: 'left' }}
+            >
+                <span style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    SEO
+                </span>
+                <svg width="12" height="12" viewBox="0 0 14 14" fill="none" style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s', flexShrink: 0 }}>
+                    <path d="M3 5l4 4 4-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+            </button>
+            {open && (
+                <div style={{ padding: '2px 20px 20px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+                    {!data ? (
+                        <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: 0 }}>Loading…</p>
+                    ) : (
+                        <>
+                            <div className="form-group" style={{ margin: 0 }}>
+                                <label>Meta Title</label>
+                                <input value={data.metaTitle || ''} onChange={e => onChange({ ...data, metaTitle: e.target.value })} placeholder="Title shown in search results" />
+                            </div>
+                            <div className="form-group" style={{ margin: 0 }}>
+                                <label>Meta Description</label>
+                                <textarea rows={2} value={data.metaDescription || ''} onChange={e => onChange({ ...data, metaDescription: e.target.value })} placeholder="Short description for search results" />
+                            </div>
+                            <div className="form-group" style={{ margin: 0 }}>
+                                <label>Canonical URL</label>
+                                <input value={data.canonicalUrl || ''} onChange={e => onChange({ ...data, canonicalUrl: e.target.value })} placeholder="https://salescode.ai/..." />
+                            </div>
+                            <div className="form-group" style={{ margin: 0 }}>
+                                <label>OG Image URL</label>
+                                <input value={data.ogImage || ''} onChange={e => onChange({ ...data, ogImage: e.target.value })} placeholder="https://..." />
+                            </div>
+                            <div style={{ display: 'flex', gap: 8 }}>
+                                <button type="button" className="btn-primary" style={{ flex: 1, justifyContent: 'center' }} onClick={onSave} disabled={saving}>
+                                    {saving ? 'Saving…' : 'Save SEO'}
+                                </button>
+                                <button type="button" className="btn-secondary" style={{ fontSize: 12, padding: '6px 10px', whiteSpace: 'nowrap' }} onClick={onAdvanced}>
+                                    Advanced →
+                                </button>
+                            </div>
+                        </>
+                    )}
+                </div>
+            )}
+        </div>
+    );
+}
 
 const PAGE_TO_PATH = {
     landing:      '/',
@@ -111,6 +177,10 @@ export default function VisualEditor() {
     useEffect(() => { blogsRef.current  = blogs;   }, [blogs]);
     useEffect(() => { bgImgRef.current  = bgImage; }, [bgImage]);
 
+    const [addingBlog, setAddingBlog]       = useState(false);
+    const [newBlogDraft, setNewBlogDraft]   = useState(EMPTY_NEW_BLOG);
+    const [blogCreating, setBlogCreating]   = useState(false);
+
     // ── About ───────────────────────────────────────────────────────────────
     const [aboutPage, setAboutPage]     = useState({ title: '', description: '', bannerImage: '', video: '' });
     const [aboutSaving, setAboutSaving] = useState(false);
@@ -131,6 +201,11 @@ export default function VisualEditor() {
     const [activeClientField, setActiveClientField] = useState(null);
     const clientRef = useRef({});
     useEffect(() => { clientRef.current = clientPage; }, [clientPage]);
+
+    // ── SEO ──────────────────────────────────────────────────────────────────
+    const [seoByPage, setSeoByPage] = useState({});
+    const [seoOpen, setSeoOpen]     = useState(false);
+    const [seoSaving, setSeoSaving] = useState(false);
 
     // ── Products ─────────────────────────────────────────────────────────────
     const [products, setProducts]         = useState([]);
@@ -324,6 +399,8 @@ export default function VisualEditor() {
                 setActiveAboutField(null); setActiveContactField(null); setActiveClientField(null);
                 setActiveHeroField(null);
                 setSidebarBlogPickerOpen(false);
+                setAddingBlog(false);
+                setSeoOpen(false);
             }
 
             // Hero
@@ -394,6 +471,26 @@ export default function VisualEditor() {
         } catch { setToast({ type: 'error', message: 'Save failed' }); }
         finally { setSectionsSaving(false); }
     }
+    async function createNewBlog() {
+        setBlogCreating(true);
+        try {
+            const { data } = await createBlog({
+                title: newBlogDraft.title,
+                description: newBlogDraft.description,
+                image: newBlogDraft.image,
+                link: newBlogDraft.link,
+                type: newBlogDraft.type || '',
+                enabled: newBlogDraft.enabled,
+            });
+            const updated = [...blogsRef.current, data.blog];
+            setBlogs(updated);
+            setAddingBlog(false);
+            setNewBlogDraft(EMPTY_NEW_BLOG);
+            setToast({ type: 'success', message: 'Blog added' });
+        } catch { setToast({ type: 'error', message: 'Could not add blog' }); }
+        finally { setBlogCreating(false); }
+    }
+
     async function saveBgImage() {
         setBgSaving(true);
         try {
@@ -474,6 +571,26 @@ export default function VisualEditor() {
         }));
         setSidebarBlogPickerOpen(false);
     };
+    async function loadSeoPage(key) {
+        if (seoByPage[key] !== undefined) return;
+        try {
+            const { data } = await getSeo(key);
+            setSeoByPage(prev => ({ ...prev, [key]: data.seo || {} }));
+        } catch {
+            setSeoByPage(prev => ({ ...prev, [key]: {} }));
+        }
+    }
+    async function saveSeoForPage() {
+        const key = PAGE_TO_SEO_KEY[currentPage];
+        if (!key) return;
+        setSeoSaving(true);
+        try {
+            await updateSeo(key, seoByPage[key] || {});
+            setToast({ type: 'success', message: 'SEO saved' });
+        } catch { setToast({ type: 'error', message: 'SEO save failed' }); }
+        finally { setSeoSaving(false); }
+    }
+
     async function loadAvailableBlogs() {
         try {
             const { data } = await getAvailableBlogs();
@@ -887,6 +1004,60 @@ export default function VisualEditor() {
                         )}
                         {activeBlogField === 'blog' && !sidebarBlogDraft && <p style={{ color: 'var(--text-muted)', fontSize: 13, marginTop: 8 }}>Click a blog card to edit it.</p>}
                         {!activeBlogField && <p style={{ color: 'var(--text-muted)', fontSize: 13, marginTop: 8 }}>Click any highlighted area to edit it.</p>}
+
+                        <div style={{ borderTop: '1px solid var(--color-border)', marginTop: 16, paddingTop: 16 }}>
+                            {!addingBlog ? (
+                                <button type="button" className="btn-secondary" style={{ width: '100%', justifyContent: 'center' }}
+                                    onClick={() => { setAddingBlog(true); setNewBlogDraft(EMPTY_NEW_BLOG); }}>
+                                    + Add blog
+                                </button>
+                            ) : (
+                                <>
+                                    <p style={{ fontWeight: 600, fontSize: 13, marginBottom: 12, color: 'var(--text-primary)' }}>New blog</p>
+                                    <div className="form-group">
+                                        <label>Thumbnail</label>
+                                        {newBlogDraft.image && <img src={newBlogDraft.image} alt="" style={{ width: '100%', borderRadius: 8, marginBottom: 8, objectFit: 'cover', maxHeight: 120 }} />}
+                                        <div style={{ display: 'flex', gap: 8 }}>
+                                            <FileUploadButton label={newBlogDraft.image ? 'Replace' : 'Upload'} accept="image/*"
+                                                onUploaded={url => setNewBlogDraft(d => ({ ...d, image: url }))}
+                                                onError={msg => setToast({ type: 'error', message: msg })} />
+                                            {newBlogDraft.image && <button type="button" className="btn-remove" onClick={() => setNewBlogDraft(d => ({ ...d, image: '' }))}>Clear</button>}
+                                        </div>
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Title</label>
+                                        <input value={newBlogDraft.title} onChange={e => setNewBlogDraft(d => ({ ...d, title: e.target.value }))} placeholder="Blog title" autoFocus />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Description</label>
+                                        <textarea rows={3} value={newBlogDraft.description} onChange={e => setNewBlogDraft(d => ({ ...d, description: e.target.value }))} placeholder="Short summary" />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Type</label>
+                                        <select value={newBlogDraft.type || ''} onChange={e => setNewBlogDraft(d => ({ ...d, type: e.target.value }))}>
+                                            <option value="">— Uncategorized —</option>
+                                            {BLOG_CATEGORIES.map(k => <option key={k} value={k}>{BLOG_CATEGORY_LABELS[k]}</option>)}
+                                        </select>
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Link</label>
+                                        <input value={newBlogDraft.link} onChange={e => setNewBlogDraft(d => ({ ...d, link: e.target.value }))} placeholder="/blog/my-post" />
+                                    </div>
+                                    <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                        <label style={{ margin: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+                                            <input type="checkbox" checked={!!newBlogDraft.enabled} onChange={e => setNewBlogDraft(d => ({ ...d, enabled: e.target.checked }))} />
+                                            Visible on blog page
+                                        </label>
+                                    </div>
+                                    <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+                                        <button type="button" className="btn-primary" style={{ flex: 1, justifyContent: 'center' }} onClick={createNewBlog} disabled={blogCreating}>
+                                            {blogCreating ? 'Adding…' : 'Add blog'}
+                                        </button>
+                                        <button type="button" className="btn-secondary" onClick={() => setAddingBlog(false)} disabled={blogCreating}>Cancel</button>
+                                    </div>
+                                </>
+                            )}
+                        </div>
                     </div>
                 </div>
             );
@@ -1122,6 +1293,22 @@ export default function VisualEditor() {
         'contact-us': 'Contact Us', clients: 'Clients', products: 'Products',
     }[currentPage] || 'Visual Editor';
 
+    const seoPageKey = PAGE_TO_SEO_KEY[currentPage];
+    const sidebarWithSeo = seoPageKey ? (
+        <>
+            {sidebar}
+            <SeoAccordion
+                open={seoOpen}
+                onToggle={(isOpen) => { setSeoOpen(isOpen); if (isOpen) loadSeoPage(seoPageKey); }}
+                data={seoByPage[seoPageKey]}
+                onChange={seoData => setSeoByPage(prev => ({ ...prev, [seoPageKey]: seoData }))}
+                saving={seoSaving}
+                onSave={saveSeoForPage}
+                onAdvanced={() => navigate('/seo')}
+            />
+        </>
+    ) : sidebar;
+
     return (
         <>
             <VisualEditorLayout
@@ -1130,7 +1317,7 @@ export default function VisualEditor() {
                 src={`${PREVIEW_URL}${startPath}`}
                 onSave={effectiveOnSave}
                 saving={effectiveSaving}
-                sidebarContent={sidebar}
+                sidebarContent={sidebarWithSeo}
                 adminHref="/content"
                 iframeReady={iframeReady}
             />
