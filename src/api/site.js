@@ -58,11 +58,13 @@ export const listPages = () => api.get('/pages');
 export const getPage = (pageKey) => api.get(`/pages/${pageKey}`);
 export const updatePage = (pageKey, page) => api.put(`/pages/${pageKey}`, { page });
 
-// Products (catalog) — seeded from DB; no create/delete from the UI
+// Products (catalog)
 export const listProducts = () => api.get('/products');
+export const createProduct = (payload) => api.post('/products', payload);
 export const reorderProducts = (order) => api.put('/products/reorder', { order });
 export const getProduct = (productId) => api.get(`/products/${productId}`);
 export const updateProduct = (productId, payload) => api.put(`/products/${productId}`, payload);
+export const deleteProduct = (productId) => api.delete(`/products/${productId}`);
 export const getProductSidebar = (productId) => api.get(`/products/${productId}/sidebar`);
 export const updateProductSidebar = (productId, sidebar) =>
     api.put(`/products/${productId}/sidebar`, { sidebar });

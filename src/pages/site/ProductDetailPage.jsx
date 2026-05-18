@@ -12,10 +12,12 @@ import '../../components/admin/adminShared.css';
 const PREVIEW_URL = import.meta.env.VITE_PREVIEW_URL ?? 'http://localhost:3000';
 
 const CATEGORIES = [
-    { id: 'applications', label: 'Applications' },
-    { id: 'ai-agents', label: 'AI Agents' },
-    { id: 'plugins', label: 'Plugins' },
-    { id: 'integrations', label: '3rd Party Integrations' }
+    { id: 'applications',     label: 'Applications' },
+    { id: 'ai-agents',        label: 'AI Agents' },
+    { id: 'trade-solutions',  label: 'Trade Solutions' },
+    { id: 'image-recognition',label: 'Image Recognition' },
+    { id: 'plugins',          label: 'Plugins' },
+    { id: 'integrations',     label: 'Integrations' },
 ];
 
 const blank = () => ({
@@ -38,7 +40,7 @@ function Caret() {
 export default function ProductDetailPage() {
     const { productId } = useParams();
     const [product, setProduct] = useState(null);
-    const [details, setDetails] = useState({ name: '', description: '', image: '', category: 'applications', status: '', timelineStage: '', liveDate: '' });
+    const [details, setDetails] = useState({ name: '', description: '', image: '', category: 'applications', status: '', timelineStage: '', liveDate: '', preview: { quickStartTitle: '', videoLabel: '', title: '', description: '', videoUrl: '', thumbnail: '' } });
     const [items, setItems] = useState([]);
     const [showRoute, setShowRoute] = useState(() => new Set());
     const [expanded, setExpanded] = useState(() => new Set());
@@ -116,6 +118,14 @@ export default function ProductDetailPage() {
                     status:        data.product?.status        || '',
                     timelineStage: data.product?.timelineStage || '',
                     liveDate:      data.product?.liveDate      || '',
+                    preview: {
+                        quickStartTitle: data.product?.preview?.quickStartTitle || '',
+                        videoLabel:      data.product?.preview?.videoLabel      || '',
+                        title:           data.product?.preview?.title           || '',
+                        description:     data.product?.preview?.description     || '',
+                        videoUrl:        data.product?.preview?.videoUrl        || '',
+                        thumbnail:       data.product?.preview?.thumbnail       || '',
+                    },
                 });
                 setItems(data.product?.sidebar || []);
             } catch (e) {
@@ -137,6 +147,7 @@ export default function ProductDetailPage() {
                 status:        details.status        || null,
                 timelineStage: details.timelineStage || null,
                 liveDate:      details.liveDate      || null,
+                preview:       details.preview,
             });
             setProduct(data.product);
             setToast({ type: 'success', message: 'Product details saved' });
@@ -305,6 +316,95 @@ export default function ProductDetailPage() {
                                 ))}
                             </select>
                         </div>
+                    </div>
+                </div>
+            </AdminSection>
+
+            <AdminSection
+                title="Hover Preview Card"
+                collapsible={true}
+                accent="teal"
+                description="Shown when a visitor hovers over this product card on the landing page (live products only). No video uploaded = no play button."
+            >
+                <div className="admin-field-row">
+                    <div className="admin-field">
+                        <label>Quick-start label <span className="hint">top chip text</span></label>
+                        <input
+                            value={details.preview.quickStartTitle}
+                            onChange={e => setDetails({ ...details, preview: { ...details.preview, quickStartTitle: e.target.value } })}
+                            placeholder="e.g. SFA Rural Quick Start"
+                        />
+                    </div>
+                    <div className="admin-field">
+                        <label>Video label <span className="hint">overlay text on thumbnail</span></label>
+                        <input
+                            value={details.preview.videoLabel}
+                            onChange={e => setDetails({ ...details, preview: { ...details.preview, videoLabel: e.target.value } })}
+                            placeholder="e.g. Experience your NextGen SFA Rural"
+                        />
+                    </div>
+                </div>
+                <div className="admin-field">
+                    <label>Preview title</label>
+                    <input
+                        value={details.preview.title}
+                        onChange={e => setDetails({ ...details, preview: { ...details.preview, title: e.target.value } })}
+                        placeholder="e.g. NextGen SFA Rural in 60 seconds"
+                    />
+                </div>
+                <div className="admin-field">
+                    <label>Preview description</label>
+                    <textarea
+                        rows={2}
+                        value={details.preview.description}
+                        onChange={e => setDetails({ ...details, preview: { ...details.preview, description: e.target.value } })}
+                        placeholder="e.g. See how reps run beats offline, capture orders and sync seamlessly once back online."
+                    />
+                </div>
+                <div className="admin-field">
+                    <label>Video</label>
+                    {details.preview.videoUrl && (
+                        <div style={{ marginBottom: 8 }}>
+                            <video
+                                src={details.preview.videoUrl}
+                                style={{ width: '100%', maxHeight: 140, borderRadius: 8, background: '#000', display: 'block' }}
+                                controls={false}
+                                preload="metadata"
+                            />
+                            <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', marginTop: 4, display: 'block', wordBreak: 'break-all' }}>
+                                {details.preview.videoUrl.split('/').pop()}
+                            </span>
+                        </div>
+                    )}
+                    <div style={{ display: 'flex', gap: 8 }}>
+                        <FileUploadButton
+                            label={details.preview.videoUrl ? 'Replace video' : 'Upload video'}
+                            accept="video/*"
+                            onUploaded={url => setDetails({ ...details, preview: { ...details.preview, videoUrl: url } })}
+                            onError={msg => setToast({ type: 'error', message: msg })}
+                        />
+                        {details.preview.videoUrl && (
+                            <button type="button" className="btn-remove" onClick={() => setDetails({ ...details, preview: { ...details.preview, videoUrl: '' } })}>Remove</button>
+                        )}
+                    </div>
+                </div>
+                <div className="admin-field">
+                    <label>Thumbnail image</label>
+                    {details.preview.thumbnail && (
+                        <div style={{ width: 80, height: 56, borderRadius: 8, border: '1px solid var(--border)', background: 'var(--bg-elevated)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 6, marginBottom: 8 }}>
+                            <img src={details.preview.thumbnail} alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                        </div>
+                    )}
+                    <div style={{ display: 'flex', gap: 8 }}>
+                        <FileUploadButton
+                            label={details.preview.thumbnail ? 'Replace' : 'Upload'}
+                            accept="image/*"
+                            onUploaded={url => setDetails({ ...details, preview: { ...details.preview, thumbnail: url } })}
+                            onError={msg => setToast({ type: 'error', message: msg })}
+                        />
+                        {details.preview.thumbnail && (
+                            <button type="button" className="btn-remove" onClick={() => setDetails({ ...details, preview: { ...details.preview, thumbnail: '' } })}>Clear</button>
+                        )}
                     </div>
                 </div>
             </AdminSection>
